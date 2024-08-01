@@ -6,8 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MinPriceByCategoryResponse {
-    private Long id;
-    private Long brandId;
-    private Long categoryId;
+    private String categoryName;
+    private String brandName;
     private Integer price;
 }
