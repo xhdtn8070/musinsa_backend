@@ -1,10 +1,12 @@
 package com.tikim.org.musinsa.domain.product.service;
 
+import com.tikim.org.musinsa.domain.category.exception.CategoryException;
 import com.tikim.org.musinsa.domain.product.dto.CategoryMinMaxPrice;
 import com.tikim.org.musinsa.domain.product.dto.MinPriceByBrandResponse;
 import com.tikim.org.musinsa.domain.product.dto.MinPriceByCategoryResponse;
 import com.tikim.org.musinsa.domain.product.dto.CategoryMinMaxPriceResponse;
 import com.tikim.org.musinsa.domain.product.dto.MinPriceProductByBrand;
+import com.tikim.org.musinsa.domain.product.exception.ProductException;
 import com.tikim.org.musinsa.domain.product.repository.ProductRepository;
 import com.tikim.org.musinsa.domain.category.repository.CategoryRepository;
 import com.tikim.org.musinsa.domain.category.entity.Category;
@@ -37,7 +39,7 @@ public class ProductService {
         List<MinPriceProductByBrand> minPriceProducts = productRepository.findMinPriceProductsByBrand();
 
         if (minPriceProducts.isEmpty()) {
-            throw new BaseException(ErrorMessage.UNDEFINED_EXCEPTION, CriticalLevel.CRITICAL, "No products found") {
+            throw new ProductException(ErrorMessage.PRODUCT_NOT_EXIST, CriticalLevel.CRITICAL) {
             };
         }
 
@@ -63,14 +65,18 @@ public class ProductService {
     @Transactional(readOnly = true)
     public CategoryMinMaxPriceResponse findCategoryMinMaxPrice(String categoryName) {
         Category category = categoryRepository.findByName(categoryName)
-                .orElseThrow(() -> new BaseException(ErrorMessage.UNDEFINED_EXCEPTION, CriticalLevel.CRITICAL, "Category not found") {});
+            .orElseThrow(() -> new CategoryException(ErrorMessage.CATEGORY_NOT_EXIST, CriticalLevel.NON_CRITICAL) {
+            });
 
         CategoryMinMaxPrice minPrice = productRepository.findMinPriceByCategory(category.getId())
-                .orElseThrow(() -> new BaseException(ErrorMessage.UNDEFINED_EXCEPTION, CriticalLevel.CRITICAL, "Min price not found") {});
+            .orElseThrow(() -> new ProductException(ErrorMessage.MIN_PRICE_NOT_FOUND, CriticalLevel.CRITICAL, "Min price not found") {
+            });
 
         CategoryMinMaxPrice maxPrice = productRepository.findMaxPriceByCategory(category.getId())
-                .orElseThrow(() -> new BaseException(ErrorMessage.UNDEFINED_EXCEPTION, CriticalLevel.CRITICAL, "Max price not found") {});
+            .orElseThrow(() -> new ProductException(ErrorMessage.MAX_PRICE_NOT_FOUND, CriticalLevel.CRITICAL, "Max price not found") {
+            });
 
         return CategoryMinMaxPriceResponse.from(categoryName, minPrice, maxPrice);
     }
+
 }
