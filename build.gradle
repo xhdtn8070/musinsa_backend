@@ -17,6 +17,10 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    all {
+        // 기본 로깅 라이브러리인 spring-boot-starter-logging 제외: Log4j 사용을 위해 제외
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
 }
 
 repositories {
@@ -29,11 +33,18 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.flywaydb:flyway-core'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2' // Log4j2 사용
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0' // Springdoc OpenAPI 3 사용
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Apple Silicon 환경에 따라 netty-resolver-dns-native-macos 라이브러리를 조건부로 추가
+    if (System.getProperty("os.arch") == "aarch64" && System.getProperty("os.name").toLowerCase().contains("mac")) {
+        runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64")
+    }
 }
 
 tasks.named('test') {

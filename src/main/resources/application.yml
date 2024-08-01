@@ -1,0 +1,8 @@
+#Djava spring profile 빌드옵션 설정하여, 깃허브 액션에 적용 필요
+spring:
+  application:
+    name: musinsa
+  profiles:
+    active: local
+  jpa:
+    open-in-view: false
