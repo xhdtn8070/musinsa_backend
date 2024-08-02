@@ -1,12 +1,9 @@
 package com.tikim.org.musinsa.domain.product.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record MinPriceByCategoryResponse(String categoryName, String brandName, int price) {
 
-@Data
-@AllArgsConstructor
-public class MinPriceByCategoryResponse {
-    private String categoryName;
-    private String brandName;
-    private Integer price;
+    public static MinPriceByCategoryResponse from(MinPriceProductByCategory p) {
+        return new MinPriceByCategoryResponse(p.getCategoryName(), p.getBrandName(), p.getPrice());
+    }
 }
+
