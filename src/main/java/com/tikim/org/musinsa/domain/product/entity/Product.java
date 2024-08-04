@@ -2,8 +2,8 @@ package com.tikim.org.musinsa.domain.product.entity;
 
 import com.tikim.org.musinsa.domain.brand.entity.Brand;
 import com.tikim.org.musinsa.domain.category.entity.Category;
-import com.tikim.org.musinsa.domain.product.dto.CreateProductRequest;
-import com.tikim.org.musinsa.domain.product.dto.UpdateProductRequest;
+import com.tikim.org.musinsa.domain.product.service.dto.request.ProductServiceCreateRequest;
+import com.tikim.org.musinsa.domain.product.service.dto.request.ProductServiceUpdateRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,7 +28,7 @@ public class Product {
 
     private int price;
 
-    public static Product from(CreateProductRequest request, Category category, Brand brand) {
+    public static Product from(ProductServiceCreateRequest request, Category category, Brand brand) {
         Product product = new Product();
         product.setCategory(category);
         product.setBrand(brand);
@@ -36,7 +36,7 @@ public class Product {
         return product;
     }
 
-    public void update(UpdateProductRequest request, Category category, Brand brand) {
+    public void update(ProductServiceUpdateRequest request, Category category, Brand brand) {
         this.setCategory(category);
         this.setBrand(brand);
         this.setPrice(request.getPrice());

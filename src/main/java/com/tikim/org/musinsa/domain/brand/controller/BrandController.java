@@ -30,14 +30,14 @@ public class BrandController {
         List<BrandControllerReadResponse> response = serviceResponse.stream()
             .map(BrandControllerReadResponse::from)
             .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(response, HttpStatus.OK));
+        return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.OK));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BrandControllerReadResponse>> getBrandById(@PathVariable Long id) {
         BrandServiceReadResponse serviceResponse = brandService.getBrandById(id);
         BrandControllerReadResponse response = BrandControllerReadResponse.from(serviceResponse);
-        return ResponseEntity.ok(ApiResponse.success(response, HttpStatus.OK));
+        return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.OK));
     }
 
     @PostMapping
@@ -45,7 +45,7 @@ public class BrandController {
         BrandServiceCreateRequest serviceRequest = BrandServiceCreateRequest.from(request);
         BrandServiceCreateResponse serviceResponse = brandService.createBrand(serviceRequest);
         BrandControllerCreateResponse response = BrandControllerCreateResponse.from(serviceResponse);
-        return ResponseEntity.ok(ApiResponse.success(response, HttpStatus.CREATED));
+        return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.CREATED));
     }
 
     @PutMapping("/{id}")
@@ -53,12 +53,12 @@ public class BrandController {
         BrandServiceUpdateRequest serviceRequest = BrandServiceUpdateRequest.from(request);
         BrandServiceUpdateResponse serviceResponse = brandService.updateBrand(id, serviceRequest);
         BrandControllerUpdateResponse response = BrandControllerUpdateResponse.from(serviceResponse);
-        return ResponseEntity.ok(ApiResponse.success(response, HttpStatus.OK));
+        return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.OK));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteBrandById(@PathVariable Long id) {
         brandService.deleteBrandById(id);
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.toResponseEntity(ApiResponse.success());
     }
 }

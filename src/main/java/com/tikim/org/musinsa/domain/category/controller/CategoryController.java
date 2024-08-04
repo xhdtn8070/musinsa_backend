@@ -34,14 +34,14 @@ public class CategoryController {
         List<CategoryControllerReadResponse> response = serviceResponse.stream()
             .map(CategoryControllerReadResponse::from)
             .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(response, HttpStatus.OK));
+        return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.OK));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryControllerReadResponse>> getCategoryById(@PathVariable Long id) {
         CategoryServiceReadResponse serviceResponse = categoryService.getCategoryById(id);
         CategoryControllerReadResponse response = CategoryControllerReadResponse.from(serviceResponse);
-        return ResponseEntity.ok(ApiResponse.success(response, HttpStatus.OK));
+        return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.OK));
     }
 
     @PostMapping
@@ -49,7 +49,7 @@ public class CategoryController {
         CategoryServiceCreateRequest serviceRequest = CategoryServiceCreateRequest.from(request);
         CategoryServiceCreateResponse serviceResponse = categoryService.createCategory(serviceRequest);
         CategoryControllerCreateResponse response = CategoryControllerCreateResponse.from(serviceResponse);
-        return ResponseEntity.ok(ApiResponse.success(response, HttpStatus.CREATED));
+        return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.CREATED));
     }
 
     @PutMapping("/{id}")
@@ -57,12 +57,12 @@ public class CategoryController {
         CategoryServiceUpdateRequest serviceRequest = CategoryServiceUpdateRequest.from(request);
         CategoryServiceUpdateResponse serviceResponse = categoryService.updateCategory(id, serviceRequest);
         CategoryControllerUpdateResponse response = CategoryControllerUpdateResponse.from(serviceResponse);
-        return ResponseEntity.ok(ApiResponse.success(response, HttpStatus.OK));
+        return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.OK));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCategoryById(@PathVariable Long id) {
         categoryService.deleteCategoryById(id);
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.toResponseEntity(ApiResponse.success());
     }
 }

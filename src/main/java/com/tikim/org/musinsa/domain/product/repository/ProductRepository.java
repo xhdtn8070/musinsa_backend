@@ -1,9 +1,8 @@
 package com.tikim.org.musinsa.domain.product.repository;
 
-import com.tikim.org.musinsa.domain.product.dto.CategoryMinMaxPriceResponse.BrandPrice;
-import com.tikim.org.musinsa.domain.product.dto.MinPriceProductByCategory;
-import com.tikim.org.musinsa.domain.product.dto.MinPriceProductByBrand;
-import com.tikim.org.musinsa.domain.product.dto.CategoryMinMaxPrice;
+import com.tikim.org.musinsa.domain.product.repository.dto.response.MinPriceProductByCategory;
+import com.tikim.org.musinsa.domain.product.repository.dto.response.MinPriceProductByBrand;
+import com.tikim.org.musinsa.domain.product.repository.dto.response.CategoryMinMaxPrice;
 import jakarta.annotation.Nonnull;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
