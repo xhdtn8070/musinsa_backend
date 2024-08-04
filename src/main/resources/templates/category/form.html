@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create/Edit Category</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1 id="form-title">Create Category</h1>
+<form id="category-form">
+    <input type="hidden" id="category-id" />
+    <div>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required />
+    </div>
+    <div>
+        <button type="submit" id="submit-button">Create</button>
+    </div>
+</form>
+<a href="/html/category">Back to Categories</a> | <a href="/html/index">Main Page</a>
+
+<script>
+    $(document).ready(function() {
+        let categoryId = window.location.pathname.split("/").pop();
+        if (categoryId !== "new") {
+            $("#form-title").text("Edit Category");
+            $("#submit-button").text("Update");
+            $.ajax({
+                url: `/category/${categoryId}`,
+                method: "GET",
+                success: function(data) {
+                    $("#category-id").val(data.id);
+                    $("#name").val(data.name);
+                }
+            });
+        }
+
+        $("#category-form").submit(function(event) {
+            event.preventDefault();
+            let categoryId = $("#category-id").val();
+            let url = categoryId ? `/category/${categoryId}` : "/category";
+            let method = categoryId ? "PUT" : "POST";
+
+            $.ajax({
+                url: url,
+                method: method,
+                contentType: "application/json",
+                data: JSON.stringify({ name: $("#name").val() }),
+                success: function() {
+                    window.location.href = "/html/category";
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.errorMessage);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

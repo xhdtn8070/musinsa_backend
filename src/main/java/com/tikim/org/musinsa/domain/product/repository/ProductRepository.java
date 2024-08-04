@@ -69,5 +69,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         "JOIN brand b ON xpc.brand_id = b.id", nativeQuery = true)
     Optional<CategoryMinMaxPrice> findMaxPriceByCategory(@Param("categoryId") Long categoryId);
 
+    boolean existsByBrandId(@Nonnull Long brandId);
+
+    boolean existsByCategoryId(@Nonnull Long categoryId);
 
 }

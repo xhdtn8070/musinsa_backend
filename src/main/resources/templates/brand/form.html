@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create/Edit Brand</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1 id="form-title">Create Brand</h1>
+<form id="brand-form">
+    <input type="hidden" id="brand-id" />
+    <div>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required />
+    </div>
+    <div>
+        <button type="submit" id="submit-button">Create</button>
+    </div>
+</form>
+<a href="/html/brand">Back to Brands</a> | <a href="/html/index">Main Page</a>
+
+<script>
+    $(document).ready(function() {
+        let brandId = window.location.pathname.split("/").pop();
+        if (brandId !== "new") {
+            $("#form-title").text("Edit Brand");
+            $("#submit-button").text("Update");
+            $.ajax({
+                url: `/brand/${brandId}`,
+                method: "GET",
+                success: function(data) {
+                    $("#brand-id").val(data.id);
+                    $("#name").val(data.name);
+                }
+            });
+        }
+
+        $("#brand-form").submit(function(event) {
+            event.preventDefault();
+            let brandId = $("#brand-id").val();
+            let url = brandId ? `/brand/${brandId}` : "/brand";
+            let method = brandId ? "PUT" : "POST";
+
+            $.ajax({
+                url: url,
+                method: method,
+                contentType: "application/json",
+                data: JSON.stringify({ name: $("#name").val() }),
+                success: function() {
+                    window.location.href = "/html/brand";
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.errorMessage);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

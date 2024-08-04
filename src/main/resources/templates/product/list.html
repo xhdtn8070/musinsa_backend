@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Products</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<h1>Products</h1>
+<a href="/html/product/new">Add New Product</a> | <a href="/html/index">Main Page</a>
+
+<div>
+    <button id="min-price-by-category-btn" class="btn btn-primary">Min Price by Category</button>
+    <button id="min-price-by-brand-btn" class="btn btn-primary">Min Price by Brand</button>
+    <button id="min-max-price-by-category-btn" class="btn btn-primary">Min/Max Price by Category</button>
+</div>
+
+<table id="product-table" class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Category</th>
+        <th>Brand</th>
+        <th>Price</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="apiModal" tabindex="-1" role="dialog" aria-labelledby="apiModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="apiModalLabel">API Results</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="apiModalBody">
+                <!-- API results will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: "/product",
+            method: "GET",
+            success: function(data) {
+                let productTable = $("#product-table tbody");
+                productTable.empty();
+                data.forEach(function(product) {
+                    let tableRow = `<tr>
+                            <td>${product.categoryName}</td>
+                            <td>${product.brandName}</td>
+                            <td>${product.price}</td>
+                            <td>
+                                <a href="/html/product/edit/${product.id}">Edit</a>
+                                <button onclick="deleteProduct(${product.id})">Delete</button>
+                            </td>
+                        </tr>`;
+                    productTable.append(tableRow);
+                });
+            }
+        });
+
+        function deleteProduct(id) {
+            $.ajax({
+                url: `/product/${id}`,
+                method: "DELETE",
+                success: function() {
+                    window.location.reload();
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.errorMessage);
+                }
+            });
+        }
+
+        function showModal(title, content) {
+            $("#apiModalLabel").text(title);
+            $("#apiModalBody").html(content);
+            $("#apiModal").modal('show');
+        }
+
+        $("#min-price-by-category-btn").click(function() {
+            $.ajax({
+                url: "/product/min-price-by-category",
+                method: "GET",
+                success: function(data) {
+                    let content = "<ul>";
+                    data.forEach(function(item) {
+                        content += `<li>Category: ${item.categoryName}, Brand: ${item.brandName}, Price: ${item.price}</li>`;
+                    });
+                    content += "</ul>";
+                    showModal("Min Price by Category", content);
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.errorMessage);
+                }
+            });
+        });
+
+        $("#min-price-by-brand-btn").click(function() {
+            $.ajax({
+                url: "/product/min-price-by-brand",
+                method: "GET",
+                success: function(data) {
+                    let content = `<p>Brand: ${data.brandName}</p>`;
+                    content += "<ul>";
+                    data.categoryPrices.forEach(function(item) {
+                        content += `<li>Category: ${item.category}, Price: ${item.price}</li>`;
+                    });
+                    content += `</ul><p>Total Amount: ${data.totalAmount}</p>`;
+                    showModal("Min Price by Brand", content);
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.errorMessage);
+                }
+            });
+        });
+
+        $("#min-max-price-by-category-btn").click(function() {
+            let categoryName = prompt("Enter the category name:");
+            if (categoryName) {
+                $.ajax({
+                    url: `/product/min-max-price-by-category?categoryName=${categoryName}`,
+                    method: "GET",
+                    success: function(data) {
+                        let content = `<p>Category: ${data.categoryName}</p>`;
+                        content += "<h5>Min Price</h5>";
+                        content += `<p>Brand: ${data.minPrice.brandName}, Price: ${data.minPrice.price}</p>`;
+                        content += "<h5>Max Price</h5>";
+                        content += `<p>Brand: ${data.maxPrice.brandName}, Price: ${data.maxPrice.price}</p>`;
+                        showModal("Min/Max Price by Category", content);
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON.errorMessage);
+                    }
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

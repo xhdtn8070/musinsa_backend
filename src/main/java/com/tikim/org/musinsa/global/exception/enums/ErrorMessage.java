@@ -20,7 +20,10 @@ public enum ErrorMessage {
     UNAUTHORIZED_ACCESS("접근 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
     FORBIDDEN_ACCESS("접근이 금지되었습니다.", HttpStatus.FORBIDDEN),
     INTERNAL_SERVER_ERROR("서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    SERVICE_UNAVAILABLE("서비스를 사용할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE)
+    SERVICE_UNAVAILABLE("서비스를 사용할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE),
+    CATEGORY_HAS_PRODUCTS("해당 카테고리에 상품이 존재합니다.", HttpStatus.BAD_REQUEST),
+    BRAND_HAS_PRODUCTS("해당 브랜드에 상품이 존재합니다.", HttpStatus.BAD_REQUEST),
+
     ;
 
     private final String errorMessage;

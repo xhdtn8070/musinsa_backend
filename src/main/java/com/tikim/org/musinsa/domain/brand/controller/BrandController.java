@@ -1,10 +1,11 @@
 package com.tikim.org.musinsa.domain.brand.controller;
 
+import com.tikim.org.musinsa.domain.brand.dto.BrandResponse;
 import com.tikim.org.musinsa.domain.brand.dto.CreateBrandRequest;
 import com.tikim.org.musinsa.domain.brand.dto.UpdateBrandRequest;
-import com.tikim.org.musinsa.domain.brand.entity.Brand;
 import com.tikim.org.musinsa.domain.brand.service.BrandService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,27 +18,28 @@ public class BrandController {
     private final BrandService brandService;
 
     @GetMapping
-    public List<Brand> getAllBrands() {
-        return brandService.getAllBrands();
+    public ResponseEntity<List<BrandResponse>> getAllBrands() {
+        return ResponseEntity.ok(brandService.getAllBrands());
     }
 
     @GetMapping("/{id}")
-    public Brand getBrandById(@PathVariable Long id) {
-        return brandService.getBrandById(id);
+    public ResponseEntity<BrandResponse> getBrandById(@PathVariable Long id) {
+        return ResponseEntity.ok(brandService.getBrandById(id));
     }
 
     @PostMapping
-    public Brand createBrand(@RequestBody CreateBrandRequest request) {
-        return brandService.createBrand(request);
+    public ResponseEntity<BrandResponse> createBrand(@RequestBody CreateBrandRequest request) {
+        return ResponseEntity.ok(brandService.createBrand(request));
     }
 
     @PutMapping("/{id}")
-    public Brand updateBrand(@PathVariable Long id, @RequestBody UpdateBrandRequest request) {
-        return brandService.updateBrand(id, request);
+    public ResponseEntity<BrandResponse> updateBrand(@PathVariable Long id, @RequestBody UpdateBrandRequest request) {
+        return ResponseEntity.ok(brandService.updateBrand(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteBrandById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBrandById(@PathVariable Long id) {
         brandService.deleteBrandById(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create/Edit Product</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1 id="form-title">Create Product</h1>
+<form id="product-form">
+    <input type="hidden" id="product-id" />
+    <div>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required />
+    </div>
+    <div>
+        <label for="price">Price</label>
+        <input type="number" id="price" name="price" required />
+    </div>
+    <div>
+        <label for="brand">Brand</label>
+        <select id="brand" name="brand" required></select>
+    </div>
+    <div>
+        <label for="category">Category</label>
+        <select id="category" name="category" required></select>
+    </div>
+    <div>
+        <button type="submit" id="submit-button">Create</button>
+    </div>
+</form>
+<a href="/html/product">Back to Products</a> | <a href="/html/index">Main Page</a>
+
+<script>
+    $(document).ready(function() {
+        // Fetch Brands and Categories for the form
+        $.ajax({
+            url: "/brand",
+            method: "GET",
+            success: function(data) {
+                let brandSelect = $("#brand");
+                data.forEach(function(brand) {
+                    brandSelect.append(new Option(brand.name, brand.id));
+                });
+            }
+        });
+
+        $.ajax({
+            url: "/category",
+            method: "GET",
+            success: function(data) {
+                let categorySelect = $("#category");
+                data.forEach(function(category) {
+                    categorySelect.append(new Option(category.name, category.id));
+                });
+            }
+        });
+
+        let productId = window.location.pathname.split("/").pop();
+        if (productId !== "new") {
+            $("#form-title").text("Edit Product");
+            $("#submit-button").text("Update");
+            $.ajax({
+                url: `/product/${productId}`,
+                method: "GET",
+                success: function(data) {
+                    $("#product-id").val(data.id);
+                    $("#name").val(data.name);
+                    $("#price").val(data.price);
+                    $("#brand").val(data.brand.id);
+                    $("#category").val(data.category.id);
+                }
+            });
+        }
+
+        $("#product-form").submit(function(event) {
+            event.preventDefault();
+            let productId = $("#product-id").val();
+            let url = productId ? `/product/${productId}` : "/product";
+            let method = productId ? "PUT" : "POST";
+
+            $.ajax({
+                url: url,
+                method: method,
+                contentType: "application/json",
+                data: JSON.stringify({
+                    name: $("#name").val(),
+                    price: $("#price").val(),
+                    brandId: $("#brand").val(),
+                    categoryId: $("#category").val()
+                }),
+                success: function() {
+                    window.location.href = "/html/product";
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.errorMessage);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

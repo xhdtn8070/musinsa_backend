@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Categories</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>Categories</h1>
+<a href="/html/category/new">Add New Category</a> | <a href="/html/index">Main Page</a>
+<ul id="category-list"></ul>
+
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: "/category",
+            method: "GET",
+            success: function(data) {
+                let categoryList = $("#category-list");
+                categoryList.empty();
+                data.forEach(function(category) {
+                    let listItem = `<li>
+                            <a href="/html/category/edit/${category.id}">${category.name}</a>
+                            <button onclick="deleteCategory(${category.id})">Delete</button>
+                        </li>`;
+                    categoryList.append(listItem);
+                });
+            }
+        });
+    });
+
+    function deleteCategory(id) {
+        $.ajax({
+            url: `/category/${id}`,
+            method: "DELETE",
+            success: function() {
+                window.location.reload();
+            },
+            error: function(xhr) {
+                alert(xhr.responseJSON.errorMessage);
+            }
+        });
+    }
+</script>
+</body>
+</html>
