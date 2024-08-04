@@ -27,6 +27,8 @@ public class BrandServiceUpdateBrandTest {
     @Autowired
     private BrandRepository brandRepository;
 
+    private final Long nonExistentId = -1L;
+
     private Long savedBrandId;
 
     @BeforeEach
@@ -56,6 +58,6 @@ public class BrandServiceUpdateBrandTest {
             .name("Updated Brand")
             .build();
 
-        assertThrows(BrandException.class, () -> brandService.updateBrand(-1L, request));
+        assertThrows(BrandException.class, () -> brandService.updateBrand(nonExistentId, request));
     }
 }

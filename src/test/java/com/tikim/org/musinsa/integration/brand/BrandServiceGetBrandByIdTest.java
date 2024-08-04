@@ -26,6 +26,8 @@ public class BrandServiceGetBrandByIdTest {
     @Autowired
     private BrandRepository brandRepository;
 
+    private final Long nonExistentId = -1L;
+
     private Long savedBrandId;
 
     @BeforeEach
@@ -45,6 +47,6 @@ public class BrandServiceGetBrandByIdTest {
     @Test
     @DisplayName("존재하지 않는 브랜드 조회 시 예외 발생 테스트")
     void testGetBrandById_NotFound() {
-        assertThrows(BrandException.class, () -> brandService.getBrandById(-1L));
+        assertThrows(BrandException.class, () -> brandService.getBrandById(nonExistentId));
     }
 }

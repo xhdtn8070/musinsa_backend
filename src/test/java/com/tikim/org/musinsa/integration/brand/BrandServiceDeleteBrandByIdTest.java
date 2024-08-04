@@ -24,6 +24,8 @@ public class BrandServiceDeleteBrandByIdTest {
     @Autowired
     private BrandRepository brandRepository;
 
+    private final Long nonExistentId = -1L;
+
     private Long savedBrandId;
 
     @BeforeEach
@@ -44,6 +46,6 @@ public class BrandServiceDeleteBrandByIdTest {
     @Test
     @DisplayName("존재하지 않는 브랜드 삭제 시 예외 발생 테스트")
     void testDeleteBrandById_NotFound() {
-        assertThrows(BrandException.class, () -> brandService.deleteBrandById(-1L));
+        assertThrows(BrandException.class, () -> brandService.deleteBrandById(nonExistentId));
     }
 }
