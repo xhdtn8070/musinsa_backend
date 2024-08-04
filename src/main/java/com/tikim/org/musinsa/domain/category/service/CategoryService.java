@@ -1,11 +1,13 @@
 package com.tikim.org.musinsa.domain.category.service;
 
-import com.tikim.org.musinsa.domain.category.dto.CategoryResponse;
-import com.tikim.org.musinsa.domain.category.dto.CreateCategoryRequest;
-import com.tikim.org.musinsa.domain.category.dto.UpdateCategoryRequest;
 import com.tikim.org.musinsa.domain.category.entity.Category;
 import com.tikim.org.musinsa.domain.category.exception.CategoryException;
 import com.tikim.org.musinsa.domain.category.repository.CategoryRepository;
+import com.tikim.org.musinsa.domain.category.service.dto.request.CategoryServiceCreateRequest;
+import com.tikim.org.musinsa.domain.category.service.dto.request.CategoryServiceUpdateRequest;
+import com.tikim.org.musinsa.domain.category.service.dto.response.CategoryServiceCreateResponse;
+import com.tikim.org.musinsa.domain.category.service.dto.response.CategoryServiceReadResponse;
+import com.tikim.org.musinsa.domain.category.service.dto.response.CategoryServiceUpdateResponse;
 import com.tikim.org.musinsa.domain.product.repository.ProductRepository;
 import com.tikim.org.musinsa.global.exception.enums.CriticalLevel;
 import com.tikim.org.musinsa.global.exception.enums.ErrorMessage;
@@ -24,31 +26,31 @@ public class CategoryService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> getAllCategories() {
+    public List<CategoryServiceReadResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
-            .map(CategoryResponse::from)
+            .map(CategoryServiceReadResponse::from)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public CategoryResponse getCategoryById(Long id) {
+    public CategoryServiceReadResponse getCategoryById(Long id) {
         return categoryRepository.findById(id)
-            .map(CategoryResponse::from)
+            .map(CategoryServiceReadResponse::from)
             .orElseThrow(() -> new CategoryException(ErrorMessage.CATEGORY_NOT_EXIST, CriticalLevel.NON_CRITICAL));
     }
 
     @Transactional
-    public CategoryResponse createCategory(CreateCategoryRequest request) {
+    public CategoryServiceCreateResponse createCategory(CategoryServiceCreateRequest request) {
         Category category = Category.from(request);
-        return CategoryResponse.from(categoryRepository.save(category));
+        return CategoryServiceCreateResponse.from(categoryRepository.save(category));
     }
 
     @Transactional
-    public CategoryResponse updateCategory(Long id, UpdateCategoryRequest request) {
+    public CategoryServiceUpdateResponse updateCategory(Long id, CategoryServiceUpdateRequest request) {
         Category existingCategory = categoryRepository.findById(id)
             .orElseThrow(() -> new CategoryException(ErrorMessage.CATEGORY_NOT_EXIST, CriticalLevel.NON_CRITICAL));
         existingCategory.update(request);
-        return CategoryResponse.from(categoryRepository.save(existingCategory));
+        return CategoryServiceUpdateResponse.from(categoryRepository.save(existingCategory));
     }
 
     @Transactional
