@@ -9,10 +9,6 @@
 <form id="product-form">
     <input type="hidden" id="product-id" />
     <div>
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" required />
-    </div>
-    <div>
         <label for="price">Price</label>
         <input type="number" id="price" name="price" required />
     </div>
@@ -32,28 +28,24 @@
 
 <script>
     $(document).ready(function() {
-        // Fetch Brands and Categories for the form
-        $.ajax({
-            url: "/brand",
-            method: "GET",
-            success: function(data) {
-                let brandSelect = $("#brand");
-                data.forEach(function(brand) {
-                    brandSelect.append(new Option(brand.name, brand.id));
-                });
-            }
-        });
+        function populateSelect(url, selectId) {
+            $.ajax({
+                url: url,
+                method: "GET",
+                success: function(response) {
+                    let select = $(selectId);
+                    response.data.forEach(function(item) {
+                        select.append(new Option(item.name, item.id));
+                    });
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.data.errorMessage);
+                }
+            });
+        }
 
-        $.ajax({
-            url: "/category",
-            method: "GET",
-            success: function(data) {
-                let categorySelect = $("#category");
-                data.forEach(function(category) {
-                    categorySelect.append(new Option(category.name, category.id));
-                });
-            }
-        });
+        populateSelect("/brand", "#brand");
+        populateSelect("/category", "#category");
 
         let productId = window.location.pathname.split("/").pop();
         if (productId !== "new") {
@@ -62,12 +54,15 @@
             $.ajax({
                 url: `/product/${productId}`,
                 method: "GET",
-                success: function(data) {
-                    $("#product-id").val(data.id);
-                    $("#name").val(data.name);
-                    $("#price").val(data.price);
-                    $("#brand").val(data.brand.id);
-                    $("#category").val(data.category.id);
+                success: function(response) {
+                    let product = response.data;
+                    $("#product-id").val(product.id);
+                    $("#price").val(product.price);
+                    $("#brand").val(product.brand.id);
+                    $("#category").val(product.category.id);
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.data.errorMessage);
                 }
             });
         }
@@ -83,16 +78,15 @@
                 method: method,
                 contentType: "application/json",
                 data: JSON.stringify({
-                    name: $("#name").val(),
                     price: $("#price").val(),
                     brandId: $("#brand").val(),
                     categoryId: $("#category").val()
                 }),
-                success: function() {
+                success: function(response) {
                     window.location.href = "/html/product";
                 },
                 error: function(xhr) {
-                    alert(xhr.responseJSON.errorMessage);
+                    alert(xhr.responseJSON.data.errorMessage);
                 }
             });
         });

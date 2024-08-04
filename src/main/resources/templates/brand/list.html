@@ -3,24 +3,30 @@
 <head>
     <title>Brands</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
-<h1>Brands</h1>
-<a href="/html/brand/new">Add New Brand</a> | <a href="/html/index">Main Page</a>
-<ul id="brand-list"></ul>
+<div class="container">
+    <h1 class="mt-5">Brands</h1>
+    <a href="/html/brand/new" class="btn btn-primary mt-3">Add New Brand</a>
+    <a href="/html/index" class="btn btn-secondary mt-3">Main Page</a>
+    <ul id="brand-list" class="list-group mt-3"></ul>
+</div>
 
 <script>
     $(document).ready(function() {
         $.ajax({
             url: "/brand",
             method: "GET",
-            success: function(data) {
+            success: function(response) {
                 let brandList = $("#brand-list");
                 brandList.empty();
-                data.forEach(function(brand) {
-                    let listItem = `<li>
+                response.data.forEach(function(brand) {
+                    let listItem = `<li class="list-group-item d-flex justify-content-between align-items-center">
                             <a href="/html/brand/edit/${brand.id}">${brand.name}</a>
-                            <button onclick="deleteBrand(${brand.id})">Delete</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteBrand(${brand.id})">Delete</button>
                         </li>`;
                     brandList.append(listItem);
                 });
@@ -36,7 +42,7 @@
                 window.location.reload();
             },
             error: function(xhr) {
-                alert(xhr.responseJSON.errorMessage);
+                alert(xhr.responseJSON.data.errorMessage);
             }
         });
     }

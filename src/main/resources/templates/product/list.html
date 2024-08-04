@@ -46,15 +46,34 @@
     </div>
 </div>
 
+<!-- Category Selection Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel">Select Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="category-select">Select Category:</label>
+                <select id="category-select" class="form-control"></select>
+                <button id="fetch-min-max-price-btn" class="btn btn-secondary mt-3">Fetch Min/Max Price</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function() {
         $.ajax({
             url: "/product",
             method: "GET",
-            success: function(data) {
+            success: function(response) {
                 let productTable = $("#product-table tbody");
                 productTable.empty();
-                data.forEach(function(product) {
+                response.data.forEach(function(product) {
                     let tableRow = `<tr>
                             <td>${product.categoryName}</td>
                             <td>${product.brandName}</td>
@@ -77,7 +96,7 @@
                     window.location.reload();
                 },
                 error: function(xhr) {
-                    alert(xhr.responseJSON.errorMessage);
+                    alert(xhr.responseJSON.data.errorMessage);
                 }
             });
         }
@@ -92,16 +111,16 @@
             $.ajax({
                 url: "/product/min-price-by-category",
                 method: "GET",
-                success: function(data) {
+                success: function(response) {
                     let content = "<ul>";
-                    data.forEach(function(item) {
+                    response.data.forEach(function(item) {
                         content += `<li>Category: ${item.categoryName}, Brand: ${item.brandName}, Price: ${item.price}</li>`;
                     });
                     content += "</ul>";
                     showModal("Min Price by Category", content);
                 },
                 error: function(xhr) {
-                    alert(xhr.responseJSON.errorMessage);
+                    alert(xhr.responseJSON.data.errorMessage);
                 }
             });
         });
@@ -110,37 +129,57 @@
             $.ajax({
                 url: "/product/min-price-by-brand",
                 method: "GET",
-                success: function(data) {
-                    let content = `<p>Brand: ${data.brandName}</p>`;
+                success: function(response) {
+                    let content = `<p>Brand: ${response.data.brandName}</p>`;
                     content += "<ul>";
-                    data.categoryPrices.forEach(function(item) {
+                    response.data.categoryPrices.forEach(function(item) {
                         content += `<li>Category: ${item.category}, Price: ${item.price}</li>`;
                     });
-                    content += `</ul><p>Total Amount: ${data.totalAmount}</p>`;
+                    content += `</ul><p>Total Amount: ${response.data.totalAmount}</p>`;
                     showModal("Min Price by Brand", content);
                 },
                 error: function(xhr) {
-                    alert(xhr.responseJSON.errorMessage);
+                    alert(xhr.responseJSON.data.errorMessage);
                 }
             });
         });
 
         $("#min-max-price-by-category-btn").click(function() {
-            let categoryName = prompt("Enter the category name:");
+            $.ajax({
+                url: "/category",
+                method: "GET",
+                success: function(response) {
+                    let categorySelect = $("#category-select");
+                    categorySelect.empty();
+                    response.data.forEach(function(category) {
+                        categorySelect.append(new Option(category.name, category.name));
+                    });
+                    $("#categoryModal").modal('show');
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.data.errorMessage);
+                }
+            });
+        });
+
+        $("#fetch-min-max-price-btn").click(function() {
+            let categoryName = $("#category-select").val();
             if (categoryName) {
                 $.ajax({
                     url: `/product/min-max-price-by-category?categoryName=${categoryName}`,
                     method: "GET",
-                    success: function(data) {
+                    success: function(response) {
+                        let data = response.data;
                         let content = `<p>Category: ${data.categoryName}</p>`;
                         content += "<h5>Min Price</h5>";
                         content += `<p>Brand: ${data.minPrice.brandName}, Price: ${data.minPrice.price}</p>`;
                         content += "<h5>Max Price</h5>";
                         content += `<p>Brand: ${data.maxPrice.brandName}, Price: ${data.maxPrice.price}</p>`;
                         showModal("Min/Max Price by Category", content);
+                        $("#categoryModal").modal('hide');
                     },
                     error: function(xhr) {
-                        alert(xhr.responseJSON.errorMessage);
+                        alert(xhr.responseJSON.data.errorMessage);
                     }
                 });
             }
