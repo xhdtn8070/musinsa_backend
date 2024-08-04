@@ -1,19 +1,20 @@
 package com.tikim.org.musinsa.domain.brand.controller.dto.response;
 
 import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceReadResponse;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class BrandControllerReadResponse {
-    private Long id;
-    private String name;
+    private final Long id;
+    private final String name;
 
     public static BrandControllerReadResponse from(BrandServiceReadResponse serviceResponse) {
-        BrandControllerReadResponse response = new BrandControllerReadResponse();
-        response.setId(serviceResponse.getId());
-        response.setName(serviceResponse.getName());
-        return response;
+        return BrandControllerReadResponse.builder()
+            .id(serviceResponse.getId())
+            .name(serviceResponse.getName())
+            .build();
     }
 }
+

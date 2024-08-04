@@ -4,34 +4,33 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceMinPriceByBrandResponse;
-
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class ProductControllerMinPriceByBrandResponse {
     private String brandName;
     private List<CategoryPrice> categoryPrices;
     private int totalAmount;
 
     @Getter
-    @Setter
+    @Builder
     public static class CategoryPrice {
         private String category;
         private int price;
     }
 
     public static ProductControllerMinPriceByBrandResponse from(ProductServiceMinPriceByBrandResponse serviceResponse) {
-        ProductControllerMinPriceByBrandResponse response = new ProductControllerMinPriceByBrandResponse();
-        response.setBrandName(serviceResponse.getBrandName());
-        response.setCategoryPrices(serviceResponse.getCategoryPrices().stream().map(cp -> {
-            CategoryPrice categoryPrice = new CategoryPrice();
-            categoryPrice.setCategory(cp.getCategory());
-            categoryPrice.setPrice(cp.getPrice());
-            return categoryPrice;
-        }).collect(Collectors.toList()));
-        response.setTotalAmount(serviceResponse.getTotalAmount());
-        return response;
+        return ProductControllerMinPriceByBrandResponse.builder()
+            .brandName(serviceResponse.getBrandName())
+            .categoryPrices(serviceResponse.getCategoryPrices().stream()
+                .map(cp -> CategoryPrice.builder()
+                    .category(cp.getCategory())
+                    .price(cp.getPrice())
+                    .build())
+                .collect(Collectors.toList()))
+            .totalAmount(serviceResponse.getTotalAmount())
+            .build();
     }
 }

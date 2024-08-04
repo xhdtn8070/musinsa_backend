@@ -2,14 +2,22 @@ package com.tikim.org.musinsa.domain.category.entity;
 
 import com.tikim.org.musinsa.domain.category.service.dto.request.CategoryServiceCreateRequest;
 import com.tikim.org.musinsa.domain.category.service.dto.request.CategoryServiceUpdateRequest;
-import lombok.Getter;
-import lombok.Setter;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Category {
 
     @Id
@@ -19,12 +27,12 @@ public class Category {
     private String name;
 
     public static Category from(CategoryServiceCreateRequest request) {
-        Category category = new Category();
-        category.setName(request.getName());
-        return category;
+        return Category.builder()
+            .name(request.getName())
+            .build();
     }
 
     public void update(CategoryServiceUpdateRequest request) {
-        this.setName(request.getName());
+        this.name = request.getName();
     }
 }

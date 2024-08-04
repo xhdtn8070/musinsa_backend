@@ -1,5 +1,11 @@
 package com.tikim.org.musinsa.domain.product.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tikim.org.musinsa.domain.brand.entity.Brand;
 import com.tikim.org.musinsa.domain.brand.exception.BrandException;
 import com.tikim.org.musinsa.domain.brand.repository.BrandRepository;
@@ -21,12 +27,8 @@ import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceR
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceUpdateResponse;
 import com.tikim.org.musinsa.global.exception.enums.CriticalLevel;
 import com.tikim.org.musinsa.global.exception.enums.ErrorMessage;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -104,7 +106,9 @@ public class ProductService {
 
     @Transactional
     public void deleteProductById(Long id) {
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ProductException(ErrorMessage.PRODUCT_NOT_EXIST, CriticalLevel.NON_CRITICAL));
 
-        productRepository.deleteById(id);
+        productRepository.delete(product);
     }
 }

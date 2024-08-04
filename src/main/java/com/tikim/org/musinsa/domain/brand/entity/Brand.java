@@ -2,18 +2,22 @@ package com.tikim.org.musinsa.domain.brand.entity;
 
 import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceCreateRequest;
 import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceUpdateRequest;
-import com.tikim.org.musinsa.domain.product.entity.Product;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-
-import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Brand {
 
     @Id
@@ -22,17 +26,13 @@ public class Brand {
 
     private String name;
 
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Product> products;
-
     public static Brand from(BrandServiceCreateRequest request) {
-        Brand brand = new Brand();
-        brand.setName(request.getName());
-        return brand;
+        return Brand.builder()
+            .name(request.getName())
+            .build();
     }
 
     public void update(BrandServiceUpdateRequest request) {
-        this.setName(request.getName());
+        this.name = request.getName();
     }
 }

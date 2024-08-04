@@ -4,14 +4,19 @@ import com.tikim.org.musinsa.domain.brand.entity.Brand;
 import com.tikim.org.musinsa.domain.category.entity.Category;
 import com.tikim.org.musinsa.domain.product.service.dto.request.ProductServiceCreateRequest;
 import com.tikim.org.musinsa.domain.product.service.dto.request.ProductServiceUpdateRequest;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
 @Entity
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Product {
 
     @Id
@@ -22,23 +27,29 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column(name = "category_id", insertable = false, updatable = false)
+    private Long categoryId;
+
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
+    @Column(name = "brand_id", insertable = false, updatable = false)
+    private Long brandId;
+
     private int price;
 
     public static Product from(ProductServiceCreateRequest request, Category category, Brand brand) {
-        Product product = new Product();
-        product.setCategory(category);
-        product.setBrand(brand);
-        product.setPrice(request.getPrice());
-        return product;
+        return Product.builder()
+            .category(category)
+            .brand(brand)
+            .price(request.getPrice())
+            .build();
     }
 
     public void update(ProductServiceUpdateRequest request, Category category, Brand brand) {
-        this.setCategory(category);
-        this.setBrand(brand);
-        this.setPrice(request.getPrice());
+        this.category = category;
+        this.brand = brand;
+        this.price = request.getPrice();
     }
 }

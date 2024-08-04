@@ -1,17 +1,19 @@
 package com.tikim.org.musinsa.domain.category.controller.dto.response;
 
 import com.tikim.org.musinsa.domain.category.service.dto.response.CategoryServiceReadResponse;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class CategoryControllerReadResponse {
-    private Long id;
-    private String name;
+    private final Long id;
+    private final String name;
 
     public static CategoryControllerReadResponse from(CategoryServiceReadResponse serviceResponse) {
-        CategoryControllerReadResponse response = new CategoryControllerReadResponse();
-        response.id = serviceResponse.getId();
-        response.name = serviceResponse.getName();
-        return response;
+        return CategoryControllerReadResponse.builder()
+            .id(serviceResponse.getId())
+            .name(serviceResponse.getName())
+            .build();
     }
 }

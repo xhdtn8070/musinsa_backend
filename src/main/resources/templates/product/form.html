@@ -3,69 +3,103 @@
 <head>
     <title>Create/Edit Product</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<h1 id="form-title">Create Product</h1>
-<form id="product-form">
-    <input type="hidden" id="product-id" />
-    <div>
-        <label for="price">Price</label>
-        <input type="number" id="price" name="price" required />
-    </div>
-    <div>
-        <label for="brand">Brand</label>
-        <select id="brand" name="brand" required></select>
-    </div>
-    <div>
-        <label for="category">Category</label>
-        <select id="category" name="category" required></select>
-    </div>
-    <div>
-        <button type="submit" id="submit-button">Create</button>
-    </div>
-</form>
-<a href="/html/product">Back to Products</a> | <a href="/html/index">Main Page</a>
+<div class="container">
+    <h1 id="form-title">Create Product</h1>
+    <form id="product-form">
+        <input type="hidden" id="product-id" />
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" class="form-control" required></select>
+        </div>
+        <div class="form-group">
+            <label for="brand">Brand</label>
+            <select id="brand" name="brand" class="form-control" required></select>
+        </div>
+        <div class="form-group">
+            <label for="price">Price</label>
+            <input type="number" id="price" name="price" class="form-control" required />
+        </div>
+        <button type="submit" id="submit-button" class="btn btn-primary" disabled>Create</button>
+    </form>
+    <a href="/html/product">Back to Products</a> | <a href="/html/index">Main Page</a>
+</div>
 
 <script>
     $(document).ready(function() {
-        function populateSelect(url, selectId) {
+        let categoryLoaded = false;
+        let brandLoaded = false;
+        let productData = null;
+
+        function checkLoaded() {
+            if (categoryLoaded && brandLoaded && productData) {
+                $("#category").val(productData.categoryId);
+                $("#brand").val(productData.brandId);
+                $("#price").val(productData.price);
+                checkFormValidity();
+            }
+        }
+
+        function checkFormValidity() {
+            let isValid = $("#category").val() && $("#brand").val() && $("#price").val();
+            $("#submit-button").prop('disabled', !isValid);
+        }
+
+        function loadCategories() {
             $.ajax({
-                url: url,
+                url: "/category",
                 method: "GET",
-                success: function(response) {
-                    let select = $(selectId);
-                    response.data.forEach(function(item) {
-                        select.append(new Option(item.name, item.id));
+                success: function(data) {
+                    let categorySelect = $("#category");
+                    categorySelect.empty();
+                    categorySelect.append(new Option("Select a category", ""));
+                    data.data.forEach(function(category) {
+                        categorySelect.append(new Option(category.name, category.id));
                     });
-                },
-                error: function(xhr) {
-                    alert(xhr.responseJSON.data.errorMessage);
+                    categoryLoaded = true;
+                    checkLoaded();
                 }
             });
         }
 
-        populateSelect("/brand", "#brand");
-        populateSelect("/category", "#category");
+        function loadBrands() {
+            $.ajax({
+                url: "/brand",
+                method: "GET",
+                success: function(data) {
+                    let brandSelect = $("#brand");
+                    brandSelect.empty();
+                    brandSelect.append(new Option("Select a brand", ""));
+                    data.data.forEach(function(brand) {
+                        brandSelect.append(new Option(brand.name, brand.id));
+                    });
+                    brandLoaded = true;
+                    checkLoaded();
+                }
+            });
+        }
 
-        let productId = window.location.pathname.split("/").pop();
+        const productId = window.location.pathname.split("/").pop();
         if (productId !== "new") {
             $("#form-title").text("Edit Product");
             $("#submit-button").text("Update");
+            $("#product-id").val(productId);
             $.ajax({
                 url: `/product/${productId}`,
                 method: "GET",
-                success: function(response) {
-                    let product = response.data;
-                    $("#product-id").val(product.id);
-                    $("#price").val(product.price);
-                    $("#brand").val(product.brand.id);
-                    $("#category").val(product.category.id);
-                },
-                error: function(xhr) {
-                    alert(xhr.responseJSON.data.errorMessage);
+                success: function(data) {
+                    productData = data.data;
+                    checkLoaded();
                 }
             });
+        } else {
+            checkFormValidity();
         }
+
+        loadCategories();
+        loadBrands();
 
         $("#product-form").submit(function(event) {
             event.preventDefault();
@@ -78,17 +112,21 @@
                 method: method,
                 contentType: "application/json",
                 data: JSON.stringify({
-                    price: $("#price").val(),
+                    categoryId: $("#category").val(),
                     brandId: $("#brand").val(),
-                    categoryId: $("#category").val()
+                    price: $("#price").val()
                 }),
-                success: function(response) {
+                success: function() {
                     window.location.href = "/html/product";
                 },
                 error: function(xhr) {
                     alert(xhr.responseJSON.data.errorMessage);
                 }
             });
+        });
+
+        $("#category, #brand, #price").change(function() {
+            checkFormValidity();
         });
     });
 </script>

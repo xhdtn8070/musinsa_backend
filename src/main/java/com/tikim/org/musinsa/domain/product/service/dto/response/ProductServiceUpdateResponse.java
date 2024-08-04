@@ -1,11 +1,11 @@
 package com.tikim.org.musinsa.domain.product.service.dto.response;
 
 import com.tikim.org.musinsa.domain.product.entity.Product;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class ProductServiceUpdateResponse {
     private Long id;
     private Long categoryId;
@@ -13,11 +13,11 @@ public class ProductServiceUpdateResponse {
     private int price;
 
     public static ProductServiceUpdateResponse from(Product product) {
-        ProductServiceUpdateResponse response = new ProductServiceUpdateResponse();
-        response.setId(product.getId());
-        response.setCategoryId(product.getCategory().getId());
-        response.setBrandId(product.getBrand().getId());
-        response.setPrice(product.getPrice());
-        return response;
+        return ProductServiceUpdateResponse.builder()
+            .id(product.getId())
+            .categoryId(product.getCategory().getId())
+            .brandId(product.getBrand().getId())
+            .price(product.getPrice())
+            .build();
     }
 }

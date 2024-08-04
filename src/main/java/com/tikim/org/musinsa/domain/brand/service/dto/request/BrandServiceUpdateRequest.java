@@ -1,17 +1,17 @@
 package com.tikim.org.musinsa.domain.brand.service.dto.request;
 
 import com.tikim.org.musinsa.domain.brand.controller.dto.request.BrandControllerUpdateRequest;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class BrandServiceUpdateRequest {
-    private String name;
+    private final String name;
 
     public static BrandServiceUpdateRequest from(BrandControllerUpdateRequest request) {
-        BrandServiceUpdateRequest serviceRequest = new BrandServiceUpdateRequest();
-        serviceRequest.setName(request.getName());
-        return serviceRequest;
+        return BrandServiceUpdateRequest.builder()
+            .name(request.getName())
+            .build();
     }
 }

@@ -1,21 +1,29 @@
 package com.tikim.org.musinsa.domain.brand.controller;
 
-import com.tikim.org.musinsa.domain.brand.controller.dto.request.BrandControllerCreateRequest;
-import com.tikim.org.musinsa.domain.brand.controller.dto.request.BrandControllerUpdateRequest;
-import com.tikim.org.musinsa.domain.brand.controller.dto.response.*;
-import com.tikim.org.musinsa.domain.brand.service.BrandService;
-import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceCreateRequest;
-import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceUpdateRequest;
-import com.tikim.org.musinsa.domain.brand.service.dto.response.*;
-import com.tikim.org.musinsa.global.application.dto.ApiResponse;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.tikim.org.musinsa.domain.brand.controller.dto.request.BrandControllerCreateRequest;
+import com.tikim.org.musinsa.domain.brand.controller.dto.request.BrandControllerUpdateRequest;
+import com.tikim.org.musinsa.domain.brand.controller.dto.response.BrandControllerReadResponse;
+import com.tikim.org.musinsa.domain.brand.service.BrandService;
+import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceCreateRequest;
+import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceUpdateRequest;
+import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceReadResponse;
+import com.tikim.org.musinsa.global.application.dto.ApiResponse;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/brand")
@@ -41,18 +49,18 @@ public class BrandController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<BrandControllerCreateResponse>> createBrand(@RequestBody BrandControllerCreateRequest request) {
+    public ResponseEntity<ApiResponse<BrandControllerReadResponse>> createBrand(@RequestBody BrandControllerCreateRequest request) {
         BrandServiceCreateRequest serviceRequest = BrandServiceCreateRequest.from(request);
-        BrandServiceCreateResponse serviceResponse = brandService.createBrand(serviceRequest);
-        BrandControllerCreateResponse response = BrandControllerCreateResponse.from(serviceResponse);
+        BrandServiceReadResponse serviceResponse = brandService.createBrand(serviceRequest);
+        BrandControllerReadResponse response = BrandControllerReadResponse.from(serviceResponse);
         return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.CREATED));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<BrandControllerUpdateResponse>> updateBrand(@PathVariable Long id, @RequestBody BrandControllerUpdateRequest request) {
+    public ResponseEntity<ApiResponse<BrandControllerReadResponse>> updateBrand(@PathVariable Long id, @RequestBody BrandControllerUpdateRequest request) {
         BrandServiceUpdateRequest serviceRequest = BrandServiceUpdateRequest.from(request);
-        BrandServiceUpdateResponse serviceResponse = brandService.updateBrand(id, serviceRequest);
-        BrandControllerUpdateResponse response = BrandControllerUpdateResponse.from(serviceResponse);
+        BrandServiceReadResponse serviceResponse = brandService.updateBrand(id, serviceRequest);
+        BrandControllerReadResponse response = BrandControllerReadResponse.from(serviceResponse);
         return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.OK));
     }
 
