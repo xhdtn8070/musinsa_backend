@@ -16,11 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tikim.org.musinsa.domain.brand.controller.dto.request.BrandControllerCreateRequest;
 import com.tikim.org.musinsa.domain.brand.controller.dto.request.BrandControllerUpdateRequest;
+import com.tikim.org.musinsa.domain.brand.controller.dto.response.BrandControllerCreateResponse;
 import com.tikim.org.musinsa.domain.brand.controller.dto.response.BrandControllerReadResponse;
+import com.tikim.org.musinsa.domain.brand.controller.dto.response.BrandControllerUpdateResponse;
 import com.tikim.org.musinsa.domain.brand.service.BrandService;
 import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceCreateRequest;
 import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceUpdateRequest;
+import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceCreateResponse;
 import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceReadResponse;
+import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceUpdateResponse;
 import com.tikim.org.musinsa.global.application.dto.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -49,18 +53,18 @@ public class BrandController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<BrandControllerReadResponse>> createBrand(@RequestBody BrandControllerCreateRequest request) {
+    public ResponseEntity<ApiResponse<BrandControllerCreateResponse>> createBrand(@RequestBody BrandControllerCreateRequest request) {
         BrandServiceCreateRequest serviceRequest = BrandServiceCreateRequest.from(request);
-        BrandServiceReadResponse serviceResponse = brandService.createBrand(serviceRequest);
-        BrandControllerReadResponse response = BrandControllerReadResponse.from(serviceResponse);
+        BrandServiceCreateResponse serviceResponse = brandService.createBrand(serviceRequest);
+        BrandControllerCreateResponse response = BrandControllerCreateResponse.from(serviceResponse);
         return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.CREATED));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<BrandControllerReadResponse>> updateBrand(@PathVariable Long id, @RequestBody BrandControllerUpdateRequest request) {
+    public ResponseEntity<ApiResponse<BrandControllerUpdateResponse>> updateBrand(@PathVariable Long id, @RequestBody BrandControllerUpdateRequest request) {
         BrandServiceUpdateRequest serviceRequest = BrandServiceUpdateRequest.from(request);
-        BrandServiceReadResponse serviceResponse = brandService.updateBrand(id, serviceRequest);
-        BrandControllerReadResponse response = BrandControllerReadResponse.from(serviceResponse);
+        BrandServiceUpdateResponse serviceResponse = brandService.updateBrand(id, serviceRequest);
+        BrandControllerUpdateResponse response = BrandControllerUpdateResponse.from(serviceResponse);
         return ApiResponse.toResponseEntity(ApiResponse.success(response, HttpStatus.OK));
     }
 

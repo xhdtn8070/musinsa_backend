@@ -12,9 +12,10 @@ public class BrandControllerUpdateRequestTest {
 
     @Test
     @DisplayName("BrandControllerUpdateRequest -> BrandServiceUpdateRequest 변환 테스트")
-    void testFrom() {
-        BrandControllerUpdateRequest controllerRequest = new BrandControllerUpdateRequest();
-        controllerRequest.setName("Updated Brand");
+    void testUpdateRequestConversion() {
+        BrandControllerUpdateRequest controllerRequest = BrandControllerUpdateRequest.builder()
+            .name("Updated Brand")
+            .build();
 
         BrandServiceUpdateRequest serviceRequest = BrandServiceUpdateRequest.from(controllerRequest);
 

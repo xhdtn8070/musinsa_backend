@@ -12,9 +12,10 @@ public class BrandControllerCreateRequestTest {
 
     @Test
     @DisplayName("BrandControllerCreateRequest -> BrandServiceCreateRequest 변환 테스트")
-    void testFrom() {
-        BrandControllerCreateRequest controllerRequest = new BrandControllerCreateRequest();
-        controllerRequest.setName("Test Brand");
+    void testCreateRequestConversion() {
+        BrandControllerCreateRequest controllerRequest = BrandControllerCreateRequest.builder()
+            .name("Test Brand")
+            .build();
 
         BrandServiceCreateRequest serviceRequest = BrandServiceCreateRequest.from(controllerRequest);
 

@@ -12,12 +12,12 @@ import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceReadR
 public class BrandControllerReadResponseTest {
 
     @Test
-    @DisplayName("Brand -> BrandServiceReadResponse -> BrandControllerReadResponse 변환 테스트")
-    void testFrom() {
-        Brand brand = new Brand();
-        brand.setId(1L);
-        brand.setName("Test Brand");
-
+    @DisplayName("BrandServiceReadResponse -> BrandControllerReadResponse 변환 테스트")
+    void testReadResponseConversion() {
+        Brand brand = Brand.builder()
+            .id(1L)
+            .name("Test Brand")
+            .build();
         BrandServiceReadResponse serviceResponse = BrandServiceReadResponse.from(brand);
 
         BrandControllerReadResponse controllerResponse = BrandControllerReadResponse.from(serviceResponse);
