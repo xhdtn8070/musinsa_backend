@@ -1,7 +1,7 @@
 package com.tikim.org.musinsa.domain.brand.entity;
 
-import com.tikim.org.musinsa.domain.brand.dto.CreateBrandRequest;
-import com.tikim.org.musinsa.domain.brand.dto.UpdateBrandRequest;
+import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceCreateRequest;
+import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceUpdateRequest;
 import com.tikim.org.musinsa.domain.product.entity.Product;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,13 +26,13 @@ public class Brand {
     @JsonIgnore
     private List<Product> products;
 
-    public static Brand from(CreateBrandRequest request) {
+    public static Brand from(BrandServiceCreateRequest request) {
         Brand brand = new Brand();
         brand.setName(request.getName());
         return brand;
     }
 
-    public void update(UpdateBrandRequest request) {
+    public void update(BrandServiceUpdateRequest request) {
         this.setName(request.getName());
     }
 }

@@ -1,13 +1,13 @@
 package com.tikim.org.musinsa.domain.brand.service;
 
-import com.tikim.org.musinsa.domain.brand.dto.BrandResponse;
-import com.tikim.org.musinsa.domain.brand.dto.CreateBrandRequest;
-import com.tikim.org.musinsa.domain.brand.dto.UpdateBrandRequest;
 import com.tikim.org.musinsa.domain.brand.entity.Brand;
 import com.tikim.org.musinsa.domain.brand.exception.BrandException;
 import com.tikim.org.musinsa.domain.brand.repository.BrandRepository;
-import com.tikim.org.musinsa.domain.category.entity.Category;
-import com.tikim.org.musinsa.domain.category.exception.CategoryException;
+import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceCreateRequest;
+import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceUpdateRequest;
+import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceReadResponse;
+import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceCreateResponse;
+import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceUpdateResponse;
 import com.tikim.org.musinsa.domain.product.repository.ProductRepository;
 import com.tikim.org.musinsa.global.exception.enums.CriticalLevel;
 import com.tikim.org.musinsa.global.exception.enums.ErrorMessage;
@@ -26,31 +26,31 @@ public class BrandService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<BrandResponse> getAllBrands() {
+    public List<BrandServiceReadResponse> getAllBrands() {
         return brandRepository.findAll().stream()
-            .map(BrandResponse::from)
+            .map(BrandServiceReadResponse::from)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public BrandResponse getBrandById(Long id) {
+    public BrandServiceReadResponse getBrandById(Long id) {
         return brandRepository.findById(id)
-            .map(BrandResponse::from)
+            .map(BrandServiceReadResponse::from)
             .orElseThrow(() -> new BrandException(ErrorMessage.BRAND_NOT_EXIST, CriticalLevel.NON_CRITICAL));
     }
 
     @Transactional
-    public BrandResponse createBrand(CreateBrandRequest request) {
+    public BrandServiceCreateResponse createBrand(BrandServiceCreateRequest request) {
         Brand brand = Brand.from(request);
-        return BrandResponse.from(brandRepository.save(brand));
+        return BrandServiceCreateResponse.from(brandRepository.save(brand));
     }
 
     @Transactional
-    public BrandResponse updateBrand(Long id, UpdateBrandRequest request) {
+    public BrandServiceUpdateResponse updateBrand(Long id, BrandServiceUpdateRequest request) {
         Brand existingBrand = brandRepository.findById(id)
             .orElseThrow(() -> new BrandException(ErrorMessage.BRAND_NOT_EXIST, CriticalLevel.NON_CRITICAL));
         existingBrand.update(request);
-        return BrandResponse.from(brandRepository.save(existingBrand));
+        return BrandServiceUpdateResponse.from(brandRepository.save(existingBrand));
     }
 
     @Transactional
