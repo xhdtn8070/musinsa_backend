@@ -30,6 +30,8 @@ public class BrandServiceGetAllBrandsTest {
     @BeforeEach
     void setUp() {
         brandRepository.deleteAll();
+        brandRepository.flush();
+
         brandRepository.save(Brand.builder().name("Brand1").build());
         brandRepository.save(Brand.builder().name("Brand2").build());
     }

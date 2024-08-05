@@ -29,6 +29,7 @@ public class CategoryServiceCreateCategoryTest {
     @BeforeEach
     void setUp() {
         categoryRepository.deleteAll();
+        categoryRepository.flush();
     }
 
     @Test

@@ -31,6 +31,8 @@ public class CategoryServiceDeleteCategoryTest {
     @BeforeEach
     void setUp() {
         categoryRepository.deleteAll();
+        categoryRepository.flush();
+
         Category category = categoryRepository.save(Category.builder().name("Test Category").build());
         savedCategoryId = category.getId();
     }

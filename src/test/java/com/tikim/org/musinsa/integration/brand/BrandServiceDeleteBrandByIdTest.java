@@ -31,6 +31,8 @@ public class BrandServiceDeleteBrandByIdTest {
     @BeforeEach
     void setUp() {
         brandRepository.deleteAll();
+        brandRepository.flush();
+
         Brand brand = brandRepository.save(Brand.builder().name("Brand1").build());
         savedBrandId = brand.getId();
     }

@@ -29,6 +29,7 @@ public class BrandServiceCreateBrandTest {
     @BeforeEach
     void setUp() {
         brandRepository.deleteAll();
+        brandRepository.flush();
     }
 
     @Test

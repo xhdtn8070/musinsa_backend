@@ -30,6 +30,8 @@ public class CategoryServiceGetAllCategoriesTest {
     @BeforeEach
     void setUp() {
         categoryRepository.deleteAll();
+        categoryRepository.flush();
+
         categoryRepository.save(Category.builder().name("Category 1").build());
         categoryRepository.save(Category.builder().name("Category 2").build());
     }
