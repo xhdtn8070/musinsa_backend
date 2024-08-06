@@ -10,6 +10,6 @@ public class MainHtmlController {
 
     @GetMapping("/index")
     public String mainPage() {
-        return "index";
+        return "index/index";
     }
 }

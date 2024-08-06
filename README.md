@@ -8,111 +8,62 @@
 
 ```
 src
-└── main
-    ├── java
-    │   └── com
-    │       └── tikim
-    │           └── org
-    │               └── musinsa
-    │                   ├── domain
-    │                   │   ├── brand
-    │                   │   ├── category
-    │                   │   └── product
-    │                   ├── global
-    │                   │   ├── application
-    │                   │   ├── exception
-    │                   │   └── swagger  
-    │                   └── integration
-    │                       ├── brand
-    │                       ├── category
-    │                       └── product
-    └── resources
-        └── application.yml
-        └── application-{env}.yml
+├── main
+│   ├── java
+│   │   └── com
+│   │       └── tikim
+│   │           └── org
+│   │               └── musinsa
+│   │                   ├── domain
+│   │                   │   ├── brand
+│   │                   │   ├── category
+│   │                   │   ├── product
+│   │                   │   └── index
+│   │                   └── global
+│   │                       ├── application
+│   │                       ├── exception
+│   │                       └── swagger  
+│   │                   
+│   └── resources
+│       ├── db
+│       │   └── migration
+│       │       └── V1__init.sql...
+│       ├── static
+│       ├── templates
+│       │   ├── brand
+│       │   ├── category
+│       │   ├── product
+│       │   └── index
+│       ├── log4j2-{env}.xml
+│       ├── application.yml
+│       └── application-{env}.yml
 └── test
-    ├── java
-    │   └── com
-    │       └── tikim
-    │           └── org
-    │               └── musinsa
-    │                   ├── integration
-    │                   │   ├── brand
-    │                   │   ├── category
-    │                   │   └── product
-    │                   └── unit
-    │                       ├── brand
-    │                       ├── category
-    │                       └── product
+    └── java
+        └── com
+            └── tikim
+                └── org
+                    └── musinsa
+                        ├── integration
+                        │   ├── brand
+                        │   ├── category
+                        │   └── product
+                        └── unit
+                            ├── brand
+                            ├── category
+                            └── product
 ```
 
 ## 개발 환경
 
-- **언어**: Java
-- **프레임워크**: Spring Boot
+- **언어**: Java(17)
+- **프레임워크**: Spring Boot 3.3.2
 - **빌드 도구**: Gradle
 - **데이터베이스**: H2 (테스트용)
 - **Flyway**: 데이터베이스 마이그레이션 도구
 - **Swagger UI**: API 문서를 확인할 수 있습니다.
-- **Thymeleaf**: 서버사이드 템플릿 엔진
+- **Thymeleaf**: 서버사이드 템플릿 엔진 + ajax
 
-### Gradle 설정
 
-```groovy
-plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.3.2'
-    id 'io.spring.dependency-management' version '1.1.6'
-}
-
-group = 'com.tikim.org'
-version = '0.0.1-SNAPSHOT'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-    all {
-        // 기본 로깅 라이브러리인 spring-boot-starter-logging 제외: Log4j 사용을 위해 제외
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-    }
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.flywaydb:flyway-core'
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2' // Log4j2 사용
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0' // Springdoc OpenAPI 3 사용
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    // Apple Silicon 환경에 따라 netty-resolver-dns-native-macos 라이브러리를 조건부로 추가
-    if (System.getProperty("os.arch") == "aarch64" && System.getProperty("os.name").toLowerCase().contains("mac")) {
-        runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64")
-    }
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
-}
-```
-
-### application.yml
 
 ```yaml
 # local 프로필 설정
@@ -154,31 +105,34 @@ springdoc:
 
 ---
 
-## 구현 내용
+## 구현 내용 - 메인 페이지(http://localhost:8080/html/index)
 
-### 브랜드 관리
-
+### 브랜드 관리 - 브랜드 페이지(http://localhost:8080/html/brand)
+swagger-ui : http://localhost:8080/swagger-ui/index.html#/brand-controller
+- **구현 4)**
 - **생성**: 새로운 브랜드를 생성합니다.
 - **조회**: 모든 브랜드를 조회하거나 특정 브랜드를 ID로 조회합니다.
 - **수정**: 기존 브랜드를 수정합니다.
 - **삭제**: 브랜드를 삭제합니다.
 
-### 카테고리 관리
-
+### 카테고리 관리 - 카테고리 페이지(http://localhost:8080/html/category)
+swagger-ui : http://localhost:8080/swagger-ui/index.html#/category-controller
+- **구현 4)**
 - **생성**: 새로운 카테고리를 생성합니다.
 - **조회**: 모든 카테고리를 조회하거나 특정 카테고리를 ID로 조회합니다.
 - **수정**: 기존 카테고리를 수정합니다.
 - **삭제**: 카테고리를 삭제합니다.
 
-### 상품 관리
-
+### 상품 관리 - 상품 페이지(http://localhost:8080/html/product)
+swagger-ui : http://localhost:8080/swagger-ui/index.html#/product-controller
+- **구현 1)**: 카테고리별 최저가격 브랜드와 상품 가격, 총액을 조회합니다.
+- **구현 2)**: 단일 브랜드로 모든 카테고리 상품을 구매할 때 최저가격에 판매하는 브랜드와 카테고리의 상품가격, 총액을 조회합니다.
+- **구현 3)**: 카테고리 이름으로 최저, 최고 가격 브랜드와 상품 가격을 조회합니다.
+- **구현 4)**
 - **생성**: 새로운 상품을 생성합니다.
 - **조회**: 모든 상품을 조회하거나 특정 상품을 ID로 조회합니다.
 - **수정**: 기존 상품을 수정합니다.
 - **삭제**: 상품을 삭제합니다.
-- **카테고리별 최소/최대 가격 조회**: 특정 카테고리 내에서 최소 및 최대 가격의 상품을 조회합니다.
-- **브랜드별 최소 가격 조회**: 브랜드별 최소 가격의 상품을 조회합니다.
-
 ---
 
 ## 실행 방법
