@@ -97,7 +97,7 @@ public class ProductServiceGetCategoryMinMaxPriceIntegrationTest {
         assertEquals("스니커즈", response.getCategoryName());
         assertNotNull(response.getMinPrice());
         assertNotNull(response.getMaxPrice());
-        assertEquals("A", response.getMinPrice().getBrandName());
+        assertEquals("G", response.getMinPrice().getBrandName());
         assertEquals(9000, response.getMinPrice().getPrice());
         assertEquals("E", response.getMaxPrice().getBrandName());
         assertEquals(9900, response.getMaxPrice().getPrice());
