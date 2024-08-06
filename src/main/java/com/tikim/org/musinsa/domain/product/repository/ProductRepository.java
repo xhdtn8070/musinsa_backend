@@ -19,7 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         "    FROM product " +
         "    GROUP BY category_id), " +
         "RankedProducts AS ( " +
-        "    SELECT p.id, ROW_NUMBER() OVER (PARTITION BY p.category_id ORDER BY p.price ASC, p.id DESC) as r " +
+        "    SELECT p.id, ROW_NUMBER() OVER (PARTITION BY p.category_id ORDER BY p.id DESC) as r " +
         "    FROM product p " +
         "    JOIN MinPricePerCategory mpc ON p.category_id = mpc.category_id AND p.price = mpc.min_price) " +
         "SELECT c.name AS categoryName, b.name AS brandName, p.price AS price " +
@@ -37,7 +37,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         "BrandPriceRanking AS ( " +
         "    SELECT cmp.brand_id, ROW_NUMBER() OVER (ORDER BY SUM(cmp.min_price) ASC, cmp.brand_id) as r " +
         "    FROM CategoryMinPrices cmp " +
-        "    GROUP BY cmp.brand_id) " +
+        "    GROUP BY cmp.brand_id " +
+        "    HAVING COUNT(cmp.category_id) = (SELECT COUNT(*) FROM category)) " +  // 모든 카테고리를 포함하는 브랜드만 선택
         "SELECT b.name AS brandName, c.name AS categoryName, cmp.min_price AS price " +
         "FROM CategoryMinPrices cmp " +
         "JOIN BrandPriceRanking bpr ON cmp.brand_id = bpr.brand_id AND bpr.r = 1 " +
@@ -46,11 +47,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         "ORDER BY c.id ASC;", nativeQuery = true)
     List<MinPriceProductByBrand> findMinPriceProductsByBrand();
 
+
     @Query(value = "WITH MinPricePerCategory AS ( " +
         "    SELECT p.brand_id, MIN(p.price) AS min_price " +
         "    FROM product p WHERE p.category_id = :categoryId " +
         "    GROUP BY p.brand_id " +
-        "    ORDER BY min_price ASC " +
+        "    ORDER BY min_price ASC, p.brand_id DESC " +
         "    LIMIT 1) " +
         "SELECT b.name AS brandName, mpc.min_price AS price " +
         "FROM MinPricePerCategory mpc " +
@@ -61,7 +63,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         "    SELECT p.brand_id, MAX(p.price) AS max_price " +
         "    FROM product p WHERE p.category_id = :categoryId " +
         "    GROUP BY p.brand_id " +
-        "    ORDER BY max_price DESC " +
+        "    ORDER BY max_price DESC, p.brand_id DESC " +
         "    LIMIT 1) " +
         "SELECT b.name AS brandName, xpc.max_price AS price " +
         "FROM MaxPricePerCategory xpc " +
