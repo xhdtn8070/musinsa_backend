@@ -129,44 +129,48 @@ springdoc:
 5. **웹 애플리케이션 접속**:
    - 브라우저에서 [http://localhost:8080/html/index](http://localhost:8080/html/index) 접속
 
-
 ---
+## 구현 내용
 
-## 구현 내용 - 메인 페이지(http://localhost:8080/html/index)
+### 구현 4) CRUD 기능 
 
-### 브랜드 관리 - 브랜드 페이지(http://localhost:8080/html/brand)
-swagger-ui : http://localhost:8080/swagger-ui/index.html#/brand-controller
-- **구현 4)**
+브랜드, 카테고리, 상품의 CRUD 기능을 제공합니다. CRUD는 Create(생성), Read(조회), Update(수정), Delete(삭제)를 의미하며, 각각의 엔티티에 대해 이러한 기본적인 기능들을 구현했습니다.
+#### 메인 페이지(http://localhost:8080/html/index)
+![프로젝트 기능 시연](img/mainPage.gif)
+#### 브랜드 관리
+- **브랜드 페이지**: http://localhost:8080/html/brand
+- **swagger-ui**: http://localhost:8080/swagger-ui/index.html#/brand-controller
+![프로젝트 기능 시연](img/brandPage.gif)
 - **생성**: 새로운 브랜드를 생성합니다.
 - **조회**: 모든 브랜드를 조회하거나 특정 브랜드를 ID로 조회합니다.
 - **수정**: 기존 브랜드를 수정합니다.
 - **삭제**: 브랜드를 삭제합니다.
 
-### 카테고리 관리 - 카테고리 페이지(http://localhost:8080/html/category)
-swagger-ui : http://localhost:8080/swagger-ui/index.html#/category-controller
-- **구현 4)**
+#### 카테고리 관리
+- **카테고리 페이지**: http://localhost:8080/html/category
+- **swagger-ui** : http://localhost:8080/swagger-ui/index.html#/category-controller
+![프로젝트 기능 시연](img/categoryPage.gif)
 - **생성**: 새로운 카테고리를 생성합니다.
 - **조회**: 모든 카테고리를 조회하거나 특정 카테고리를 ID로 조회합니다.
 - **수정**: 기존 카테고리를 수정합니다.
 - **삭제**: 카테고리를 삭제합니다.
 
-### 상품 관리 - 상품 페이지(http://localhost:8080/html/product)
-swagger-ui : http://localhost:8080/swagger-ui/index.html#/product-controller
-- **구현 1)**: 카테고리별 최저가격 브랜드와 상품 가격, 총액을 조회합니다.
-- **구현 2)**: 단일 브랜드로 모든 카테고리 상품을 구매할 때 최저가격에 판매하는 브랜드와 카테고리의 상품가격, 총액을 조회합니다.
-- **구현 3)**: 카테고리 이름으로 최저, 최고 가격 브랜드와 상품 가격을 조회합니다.
-- **구현 4)**
+#### 상품 관리
+- **상품 페이지**: http://localhost:8080/html/product
+- **swagger-ui**: http://localhost:8080/swagger-ui/index.html#/product-controller
+![프로젝트 기능 시연](img/productPage.gif)
 - **생성**: 새로운 상품을 생성합니다.
 - **조회**: 모든 상품을 조회하거나 특정 상품을 ID로 조회합니다.
 - **수정**: 기존 상품을 수정합니다.
 - **삭제**: 상품을 삭제합니다.
----
 
-## 구현 내용
+---
 
 ### 구현 1) 카테고리별 최소/최대 가격 상품 조회
 카테고리별로 최소 가격과 최대 가격의 상품을 조회하는 기능을 제공합니다. 
-
+- **상품 페이지**: http://localhost:8080/html/product
+- **swagger-ui**: http://localhost:8080/swagger-ui/index.html#/product-controller/getMinPriceProductsByCategory
+![프로젝트 기능 시연](img/work1.gif)
 **쿼리:**
 ```java
 @Query(value = "WITH MinPricePerCategory AS ( " +
@@ -193,11 +197,15 @@ List<MinPriceProductByCategory> findMinPriceProductsByCategory();
 
 **Edge Cases Handling:**
 - **동일 가격 상품 처리**: 동일한 가격의 상품이 여러 개 있을 때 상품 ID의 역순으로 정렬하여 하나의 상품만 선택합니다.
+![프로젝트 기능 시연](img/work1-1.gif)
 
 ---
 
 ### 구현 2) 단일 브랜드로 모든 카테고리 상품을 최저가에 구매할 때의 브랜드와 가격 조회
 단일 브랜드로 모든 카테고리의 상품을 최저가에 구매할 때 최저 가격을 제공하는 브랜드와 해당 카테고리의 상품 가격 및 총액을 조회하는 기능을 제공합니다.
+- **상품 페이지**: http://localhost:8080/html/product
+- **swagger-ui**: http://localhost:8080/swagger-ui/index.html#/product-controller/getMinPriceProductsByBrand
+![프로젝트 기능 시연](img/work2.gif)
 
 **쿼리:**
 ```java
@@ -227,11 +235,15 @@ List<MinPriceProductByBrand> findMinPriceProductsByBrand();
 
 **Edge Cases Handling:**
 - **브랜드별 상품 존재 유무**: 특정 브랜드가 모든 카테고리에 대한 상품을 갖추고 있지 않으면 제외됩니다.
+![프로젝트 기능 시연](img/work2-1.gif)
 
 ---
 
 ### 구현 3) 카테고리 이름으로 최소, 최고 가격 브랜드와 상품 가격 조회
 특정 카테고리의 최소 가격과 최고 가격의 브랜드 및 상품 가격을 조회하는 기능을 제공합니다.
+- **상품 페이지**: http://localhost:8080/html/product
+- **swagger-ui**: http://localhost:8080/swagger-ui/index.html#/product-controller/getCategoryMinMaxPrice
+![프로젝트 기능 시연](img/work3.gif)
 
 **쿼리:**
 ```java
@@ -264,10 +276,8 @@ Optional<CategoryMinMaxPrice> findMaxPriceByCategory(@Param("categoryId") Long c
 - **효율적인 데이터 조회**: 각 쿼리에서 조건을 만족하는 데이터를 먼저 필터링하고 최종 결과를 조인하여 효율적으로 조회합니다.
 
 **Edge Cases Handling:**
-- **동일 가격 상품 처리**: 동일한 가격의 상품이 여러 개 있을 경우 브랜드 ID의 역순으로 정렬하여 중복을 제거합니다.
-
----
-Here's the updated README content with the revised testing section:
+- **동일 가격 상품 처리**: 동일한 가격의 상품이 여러 개 있을 경우 브랜드 ID의 역순으로 정렬하여 중복을 예방합니다.
+![프로젝트 기능 시연](img/work3-1.gif)
 
 ---
 
@@ -280,7 +290,7 @@ Here's the updated README content with the revised testing section:
 - **통합 테스트**: 서비스 함수를 테스트하고 반복적인 테스트 수행이 가능하도록 실행 전 데이터베이스를 초기화하는 작업을 진행합니다.
 - **유닛 테스트**: 컨트롤러에서 사용하는 DTO 변환 과정을 테스트하며, 이때는 데이터베이스가 필요 없기 때문에 사전 작업이 존재하지 않습니다.
 - **서비스 함수에 대한 유닛 테스트**는 통합 테스트에서 검증하기 때문에 별도로 작성하지 않았습니다.
-
+![프로젝트 기능 시연](img/test.png)
 #### 예시: Product 통합 테스트
 
 ```java
@@ -309,7 +319,6 @@ public class ProductServiceIntegrationTest {
         // 테스트 검증 로직
     }
 }
-
 ```
 
 ---
