@@ -5,10 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.tikim.org.musinsa.domain.product.controller.dto.response.ProductControllerMinPriceByBrandResponse;
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceMinPriceByBrandResponse;
 
+@SpringBootTest
+@ActiveProfiles("test")
 public class ProductControllerMinPriceByBrandResponseTest {
 
     @Test

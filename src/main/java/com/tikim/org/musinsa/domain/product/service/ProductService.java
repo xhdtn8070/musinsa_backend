@@ -3,6 +3,10 @@ package com.tikim.org.musinsa.domain.product.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +29,7 @@ import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceM
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceMinPriceByCategoryResponse;
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceReadResponse;
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceUpdateResponse;
+import com.tikim.org.musinsa.global.cache.CacheNames;
 import com.tikim.org.musinsa.global.exception.enums.CriticalLevel;
 import com.tikim.org.musinsa.global.exception.enums.ErrorMessage;
 
@@ -38,6 +43,9 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
 
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'MinPriceProductsByCategory'")
+    })
     @Transactional(readOnly = true)
     public List<ProductServiceMinPriceByCategoryResponse> getMinPriceProductsByCategory() {
         return productRepository.findMinPriceProductsByCategory().stream()
@@ -45,12 +53,18 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'MinPriceProductsByBrand'")
+    })
     @Transactional(readOnly = true)
     public ProductServiceMinPriceByBrandResponse getMinPriceProductsByBrand() {
         List<MinPriceProductByBrand> minPriceProducts = productRepository.findMinPriceProductsByBrand();
         return ProductServiceMinPriceByBrandResponse.from(minPriceProducts);
     }
 
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'CategoryMinMaxPrice::' + #categoryName")
+    })
     @Transactional(readOnly = true)
     public ProductServiceCategoryMinMaxPriceResponse getCategoryMinMaxPrice(String categoryName) {
         Category category = categoryRepository.findByName(categoryName)
@@ -65,6 +79,9 @@ public class ProductService {
         return ProductServiceCategoryMinMaxPriceResponse.from(categoryName, minPrice, maxPrice);
     }
 
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'ALL'")
+    })
     @Transactional(readOnly = true)
     public List<ProductServiceReadResponse> getAllProducts() {
         return productRepository.findAll().stream()
@@ -72,6 +89,9 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ONE, key = "#id")
+    })
     @Transactional(readOnly = true)
     public ProductServiceReadResponse getProductById(Long id) {
         return productRepository.findById(id)
@@ -79,6 +99,9 @@ public class ProductService {
             .orElseThrow(() -> new ProductException(ErrorMessage.PRODUCT_NOT_EXIST, CriticalLevel.NON_CRITICAL));
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+    })
     @Transactional
     public ProductServiceCreateResponse createProduct(ProductServiceCreateRequest request) {
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -90,6 +113,13 @@ public class ProductService {
         return ProductServiceCreateResponse.from(productRepository.save(product));
     }
 
+    @Caching(
+        put = {
+            @CachePut(value = CacheNames.PRODUCT_ONE, key = "#id")
+        },
+        evict = {
+            @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+        })
     @Transactional
     public ProductServiceUpdateResponse updateProduct(Long id, ProductServiceUpdateRequest request) {
         Product product = productRepository.findById(id)
@@ -104,6 +134,10 @@ public class ProductService {
         return ProductServiceUpdateResponse.from(productRepository.save(product));
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = CacheNames.PRODUCT_ONE, key = "#id"),
+        @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+    })
     @Transactional
     public void deleteProductById(Long id) {
         Product product = productRepository.findById(id)

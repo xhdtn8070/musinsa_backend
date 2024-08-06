@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.tikim.org.musinsa.domain.category.controller.dto.request.CategoryControllerCreateRequest;
 import com.tikim.org.musinsa.domain.category.service.dto.request.CategoryServiceCreateRequest;
 
+@SpringBootTest
+@ActiveProfiles("test")
 public class CategoryControllerCreateRequestTest {
 
     @Test

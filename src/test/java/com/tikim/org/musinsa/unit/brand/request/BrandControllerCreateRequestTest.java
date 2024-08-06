@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.tikim.org.musinsa.domain.brand.controller.dto.request.BrandControllerCreateRequest;
 import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceCreateRequest;
 
+@SpringBootTest
+@ActiveProfiles("test")
 public class BrandControllerCreateRequestTest {
 
     @Test

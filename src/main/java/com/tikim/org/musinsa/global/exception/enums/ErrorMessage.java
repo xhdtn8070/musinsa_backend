@@ -1,8 +1,9 @@
 package com.tikim.org.musinsa.global.exception.enums;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public enum ErrorMessage {
     SERVICE_UNAVAILABLE("서비스를 사용할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE),
     CATEGORY_HAS_PRODUCTS("해당 카테고리에 상품이 존재합니다.", HttpStatus.BAD_REQUEST),
     BRAND_HAS_PRODUCTS("해당 브랜드에 상품이 존재합니다.", HttpStatus.BAD_REQUEST),
-
+    ALL_CATEGORY_PRODUCTS_NOT_EXIST("'존재하는 모든 카테고리'에 해당하는 상품을 갖춘 브랜드가 없습니다.", HttpStatus.NOT_FOUND),
     ;
 
     private final String errorMessage;

@@ -41,6 +41,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
     // Apple Silicon 환경에 따라 netty-resolver-dns-native-macos 라이브러리를 조건부로 추가
     if (System.getProperty("os.arch") == "aarch64" && System.getProperty("os.name").toLowerCase().contains("mac")) {
         runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64")

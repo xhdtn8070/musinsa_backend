@@ -8,15 +8,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tikim.org.musinsa.domain.brand.repository.BrandRepository;
 import com.tikim.org.musinsa.domain.brand.service.BrandService;
 import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceCreateRequest;
 import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceCreateResponse;
 import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceReadResponse;
-import com.tikim.org.musinsa.domain.brand.repository.BrandRepository;
+import com.tikim.org.musinsa.global.cache.service.GlobalCacheService;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class BrandServiceCreateBrandTest {
 
@@ -26,10 +29,14 @@ public class BrandServiceCreateBrandTest {
     @Autowired
     private BrandRepository brandRepository;
 
+    @Autowired
+    private GlobalCacheService globalCacheService;
+
     @BeforeEach
     void setUp() {
         brandRepository.deleteAll();
         brandRepository.flush();
+        globalCacheService.evictAllCaches();
     }
 
     @Test

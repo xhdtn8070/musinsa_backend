@@ -1,4 +1,4 @@
-# local 프로필 설정
+# test 프로필 설정
 logging:
   config: classpath:log4j2-develop.xml
   level:
@@ -6,7 +6,7 @@ logging:
 
 spring:
   datasource:
-    url: jdbc:h2:mem:localdb;MODE=MySQL
+    url: jdbc:h2:mem:testdb;MODE=MySQL
     driverClassName: org.h2.Driver
     username: sa
     password: password
@@ -28,6 +28,7 @@ spring:
       path: /h2-console
   cache:
     type: simple
+    cache-names: testCache
 
 # Swagger UI 설정
 springdoc:

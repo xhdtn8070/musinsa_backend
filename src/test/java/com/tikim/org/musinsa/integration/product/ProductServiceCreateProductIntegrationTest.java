@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tikim.org.musinsa.domain.brand.entity.Brand;
@@ -19,8 +20,10 @@ import com.tikim.org.musinsa.domain.product.repository.ProductRepository;
 import com.tikim.org.musinsa.domain.product.service.ProductService;
 import com.tikim.org.musinsa.domain.product.service.dto.request.ProductServiceCreateRequest;
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceCreateResponse;
+import com.tikim.org.musinsa.global.cache.service.GlobalCacheService;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class ProductServiceCreateProductIntegrationTest {
 
@@ -35,6 +38,9 @@ public class ProductServiceCreateProductIntegrationTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private GlobalCacheService globalCacheService;
 
     private Long savedBrandId;
     private Long savedCategoryId;
@@ -54,6 +60,8 @@ public class ProductServiceCreateProductIntegrationTest {
 
         savedBrandId = brand.getId();
         savedCategoryId = category.getId();
+
+        globalCacheService.evictAllCaches();
     }
 
     @Test

@@ -3,7 +3,6 @@ package com.tikim.org.musinsa.integration.product;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.tikim.org.musinsa.integration.product.util.TestSetupUtil;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -11,13 +10,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tikim.org.musinsa.domain.product.service.ProductService;
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceMinPriceByCategoryResponse;
-import com.tikim.org.musinsa.domain.product.repository.ProductRepository;
+import com.tikim.org.musinsa.global.cache.service.GlobalCacheService;
+import com.tikim.org.musinsa.integration.product.util.TestSetupUtil;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class ProductServiceGetMinPriceByCategoryIntegrationTest {
 
@@ -25,14 +27,15 @@ public class ProductServiceGetMinPriceByCategoryIntegrationTest {
     private ProductService productService;
 
     @Autowired
-    private ProductRepository productRepository;
+    private TestSetupUtil testSetupUtil;
 
     @Autowired
-    private TestSetupUtil testSetupUtil;
+    private GlobalCacheService globalCacheService;
 
     @BeforeEach
     void setUp() {
         testSetupUtil.setUp();
+        globalCacheService.evictAllCaches();
     }
 
     @Test

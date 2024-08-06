@@ -8,16 +8,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tikim.org.musinsa.domain.brand.entity.Brand;
 import com.tikim.org.musinsa.domain.brand.exception.BrandException;
+import com.tikim.org.musinsa.domain.brand.repository.BrandRepository;
 import com.tikim.org.musinsa.domain.brand.service.BrandService;
 import com.tikim.org.musinsa.domain.brand.service.dto.request.BrandServiceUpdateRequest;
 import com.tikim.org.musinsa.domain.brand.service.dto.response.BrandServiceUpdateResponse;
-import com.tikim.org.musinsa.domain.brand.entity.Brand;
-import com.tikim.org.musinsa.domain.brand.repository.BrandRepository;
+import com.tikim.org.musinsa.global.cache.service.GlobalCacheService;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class BrandServiceUpdateBrandTest {
 
@@ -26,6 +29,9 @@ public class BrandServiceUpdateBrandTest {
 
     @Autowired
     private BrandRepository brandRepository;
+
+    @Autowired
+    private GlobalCacheService globalCacheService;
 
     private final Long nonExistentId = -1L;
 
@@ -38,6 +44,8 @@ public class BrandServiceUpdateBrandTest {
 
         Brand brand = brandRepository.save(Brand.builder().name("Brand1").build());
         savedBrandId = brand.getId();
+
+        globalCacheService.evictAllCaches();
     }
 
     @Test

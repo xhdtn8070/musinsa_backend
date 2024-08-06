@@ -1,14 +1,13 @@
 package com.tikim.org.musinsa.integration.product;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tikim.org.musinsa.domain.brand.entity.Brand;
@@ -20,8 +19,10 @@ import com.tikim.org.musinsa.domain.product.exception.ProductException;
 import com.tikim.org.musinsa.domain.product.repository.ProductRepository;
 import com.tikim.org.musinsa.domain.product.service.ProductService;
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceReadResponse;
+import com.tikim.org.musinsa.global.cache.service.GlobalCacheService;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class ProductServiceGetProductByIdIntegrationTest {
 
@@ -37,9 +38,10 @@ public class ProductServiceGetProductByIdIntegrationTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private GlobalCacheService globalCacheService;
+
     private Long savedProductId;
-    private Long savedBrandId;
-    private Long savedCategoryId;
 
     @BeforeEach
     void setUp() {
@@ -54,9 +56,6 @@ public class ProductServiceGetProductByIdIntegrationTest {
         Brand brand = brandRepository.save(Brand.builder().name("Test Brand").build());
         Category category = categoryRepository.save(Category.builder().name("Test Category").build());
 
-        savedBrandId = brand.getId();
-        savedCategoryId = category.getId();
-
         Product product = productRepository.save(Product.builder()
             .category(category)
             .brand(brand)
@@ -64,6 +63,7 @@ public class ProductServiceGetProductByIdIntegrationTest {
             .build());
 
         savedProductId = product.getId();
+        globalCacheService.evictAllCaches();
     }
 
     @Test

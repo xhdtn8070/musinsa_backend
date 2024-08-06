@@ -295,6 +295,7 @@ Optional<CategoryMinMaxPrice> findMaxPriceByCategory(@Param("categoryId") Long c
 
 ```java
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class ProductServiceIntegrationTest {
 

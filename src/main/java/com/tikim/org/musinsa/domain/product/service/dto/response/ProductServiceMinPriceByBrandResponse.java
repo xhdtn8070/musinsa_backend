@@ -3,7 +3,10 @@ package com.tikim.org.musinsa.domain.product.service.dto.response;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.tikim.org.musinsa.domain.product.exception.ProductException;
 import com.tikim.org.musinsa.domain.product.repository.dto.response.MinPriceProductByBrand;
+import com.tikim.org.musinsa.global.exception.enums.CriticalLevel;
+import com.tikim.org.musinsa.global.exception.enums.ErrorMessage;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +26,10 @@ public class ProductServiceMinPriceByBrandResponse {
     }
 
     public static ProductServiceMinPriceByBrandResponse from(List<MinPriceProductByBrand> minPriceProducts) {
+        if(minPriceProducts.isEmpty()){
+            throw new ProductException(ErrorMessage.ALL_CATEGORY_PRODUCTS_NOT_EXIST, CriticalLevel.NON_CRITICAL);
+        }
+
         return ProductServiceMinPriceByBrandResponse.builder()
             .brandName(minPriceProducts.get(0).getBrandName())
             .categoryPrices(minPriceProducts.stream().map(p ->

@@ -3,24 +3,21 @@ package com.tikim.org.musinsa.integration.product;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.tikim.org.musinsa.integration.product.util.TestSetupUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tikim.org.musinsa.domain.brand.entity.Brand;
-import com.tikim.org.musinsa.domain.brand.repository.BrandRepository;
-import com.tikim.org.musinsa.domain.category.entity.Category;
-import com.tikim.org.musinsa.domain.category.repository.CategoryRepository;
-import com.tikim.org.musinsa.domain.product.entity.Product;
-import com.tikim.org.musinsa.domain.product.repository.ProductRepository;
 import com.tikim.org.musinsa.domain.product.service.ProductService;
 import com.tikim.org.musinsa.domain.product.service.dto.response.ProductServiceCategoryMinMaxPriceResponse;
+import com.tikim.org.musinsa.global.cache.service.GlobalCacheService;
+import com.tikim.org.musinsa.integration.product.util.TestSetupUtil;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class ProductServiceGetCategoryMinMaxPriceIntegrationTest {
 
@@ -28,20 +25,15 @@ public class ProductServiceGetCategoryMinMaxPriceIntegrationTest {
     private ProductService productService;
 
     @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private BrandRepository brandRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
     private TestSetupUtil testSetupUtil;
+
+    @Autowired
+    private GlobalCacheService globalCacheService;
 
     @BeforeEach
     void setUp() {
         testSetupUtil.setUp();
+        globalCacheService.evictAllCaches();
     }
 
     @Test

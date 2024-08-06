@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tikim.org.musinsa.domain.category.entity.Category;
@@ -15,8 +16,10 @@ import com.tikim.org.musinsa.domain.category.exception.CategoryException;
 import com.tikim.org.musinsa.domain.category.repository.CategoryRepository;
 import com.tikim.org.musinsa.domain.category.service.CategoryService;
 import com.tikim.org.musinsa.domain.category.service.dto.response.CategoryServiceReadResponse;
+import com.tikim.org.musinsa.global.cache.service.GlobalCacheService;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class CategoryServiceGetCategoryByIdTest {
 
@@ -25,6 +28,9 @@ public class CategoryServiceGetCategoryByIdTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private GlobalCacheService globalCacheService;
 
     private final Long nonExistentId = -1L;
 
@@ -37,6 +43,8 @@ public class CategoryServiceGetCategoryByIdTest {
 
         Category category = categoryRepository.save(Category.builder().name("Test Category").build());
         savedCategoryId = category.getId();
+
+        globalCacheService.evictAllCaches();
     }
 
     @Test

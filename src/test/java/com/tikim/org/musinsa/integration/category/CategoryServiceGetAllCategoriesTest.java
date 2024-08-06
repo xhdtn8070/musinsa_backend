@@ -10,14 +10,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tikim.org.musinsa.domain.category.entity.Category;
+import com.tikim.org.musinsa.domain.category.repository.CategoryRepository;
 import com.tikim.org.musinsa.domain.category.service.CategoryService;
 import com.tikim.org.musinsa.domain.category.service.dto.response.CategoryServiceReadResponse;
-import com.tikim.org.musinsa.domain.category.repository.CategoryRepository;
-import com.tikim.org.musinsa.domain.category.entity.Category;
+import com.tikim.org.musinsa.global.cache.service.GlobalCacheService;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class CategoryServiceGetAllCategoriesTest {
 
@@ -27,6 +30,9 @@ public class CategoryServiceGetAllCategoriesTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private GlobalCacheService globalCacheService;
+
     @BeforeEach
     void setUp() {
         categoryRepository.deleteAll();
@@ -34,6 +40,8 @@ public class CategoryServiceGetAllCategoriesTest {
 
         categoryRepository.save(Category.builder().name("Category 1").build());
         categoryRepository.save(Category.builder().name("Category 2").build());
+
+        globalCacheService.evictAllCaches();
     }
 
     @Test
