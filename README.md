@@ -114,8 +114,8 @@ springdoc:
 
 1. **프로젝트 클론**:
    ```sh
-   git clone https://github.com/your-repo/musinsa.git
-   cd musinsa
+   git clone https://github.com/xhdtn8070/musinsa_backend.git
+   cd musinsa_backend
    ```
 
 2. **빌드 및 실행**:
@@ -472,15 +472,20 @@ public class CacheNames {
 ### BrandService 캐시 정책
 
 `BrandService` 클래스에서는 브랜드 정보를 캐시하고, 브랜드 정보 변경 시 관련 캐시를 무효화하는 정책을 적용하였습니다.
+다음은 주어진 `BrandService`, `CategoryService`, `ProductService` 클래스의 캐시 정책을 정리한 표입니다. 각 메서드의 캐시 동작을 설명합니다.
 
-| 메서드                             | 캐시 동작                                       | 캐시 네임              | 키            |
-|----------------------------------|-----------------------------------------------|----------------------|--------------|
-| `getAllBrands()`                 | 캐시 저장                                       | `BRAND_ALL`           | `'ALL'`      |
-| `getBrandById(Long id)`          | 캐시 저장                                       | `BRAND_ONE`           | `#id`        |
+### BrandService 캐시 정책
+
+| 메서드                             | 캐시 동작         | 캐시 네임                | 키        |
+|----------------------------------|------------------|------------------------|----------|
+| `getAllBrands()`                 | 캐시 저장         | `BRAND_ALL`            | `'ALL'`  |
+| `getBrandById(Long id)`          | 캐시 저장         | `BRAND_ONE`            | `#id`    |
 | `createBrand(BrandServiceCreateRequest request)` | 캐시 무효화 | `BRAND_ALL`, `PRODUCT_ALL` | 모든 엔트리 |
-| `updateBrand(Long id, BrandServiceUpdateRequest request)` | 캐시 저장 및 무효화 | `BRAND_ONE`, `BRAND_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
-| `deleteBrandById(Long id)`       | 캐시 무효화                                     | `BRAND_ONE`, `BRAND_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
+| `updateBrand(Long id, BrandServiceUpdateRequest request)` | 캐시 무효화 | `BRAND_ONE`, `BRAND_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
+| `deleteBrandById(Long id)`       | 캐시 무효화       | `BRAND_ONE`, `BRAND_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
 
+
+위 표는 각 서비스 클래스의 메서드와 해당 메서드에서의 캐시 동작을 정리한 것입니다. 이를 통해 캐시가 어떻게 설정되고, 어떤 시점에 무효화되는지를 명확히 이해할 수 있습니다.
 ```java
 @Service
 @RequiredArgsConstructor
@@ -515,10 +520,8 @@ public class BrandService {
     }
 
     @Caching(
-        put = {
-            @CachePut(value = CacheNames.BRAND_ONE, key = "#id")
-        },
         evict = {
+            @CacheEvict(value = CacheNames.BRAND_ONE, key = "#id"),
             @CacheEvict(value = CacheNames.BRAND_ALL, allEntries = true),
             @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
             @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
@@ -542,13 +545,13 @@ public class BrandService {
 
 `CategoryService` 클래스에서는 카테고리 정보를 캐시하고, 카테고리 정보 변경 시 관련 캐시를 무효화하는 정책을 적용하였습니다.
 
-| 메서드                             | 캐시 동작                                       | 캐시 네임              | 키            |
-|----------------------------------|-----------------------------------------------|----------------------|--------------|
-| `getAllCategories()`              | 캐시 저장                                       | `CATEGORY_ALL`        | `'ALL'`      |
-| `getCategoryById(Long id)`        | 캐시 저장                                       | `CATEGORY_ONE`        | `#id`        |
+| 메서드                             | 캐시 동작         | 캐시 네임                | 키        |
+|----------------------------------|------------------|------------------------|----------|
+| `getAllCategories()`             | 캐시 저장         | `CATEGORY_ALL`         | `'ALL'`  |
+| `getCategoryById(Long id)`       | 캐시 저장         | `CATEGORY_ONE`         | `#id`    |
 | `createCategory(CategoryServiceCreateRequest request)` | 캐시 무효화 | `CATEGORY_ALL`, `PRODUCT_ALL` | 모든 엔트리 |
-| `updateCategory(Long id, CategoryServiceUpdateRequest request)` | 캐시 저장 및 무효화 | `CATEGORY_ONE`, `CATEGORY_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
-| `deleteCategoryById(Long id)`     | 캐시 무효화                                     | `CATEGORY_ONE`, `CATEGORY_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
+| `updateCategory(Long id, CategoryServiceUpdateRequest request)` | 캐시 무효화 | `CATEGORY_ONE`, `CATEGORY_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
+| `deleteCategoryById(Long id)`    | 캐시 무효화       | `CATEGORY_ONE`, `CATEGORY_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
 
 ```java
 @Service
@@ -581,10 +584,8 @@ public class CategoryService {
     }
 
     @Caching(
-        put = {
-            @CachePut(value = CacheNames.CATEGORY_ONE, key = "#id")
-        },
         evict = {
+            @CacheEvict(value = CacheNames.CATEGORY_ONE, key = "#id"),
             @CacheEvict(value = CacheNames.CATEGORY_ALL, allEntries = true),
             @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
             @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
@@ -615,16 +616,16 @@ public class CategoryService {
 
 ### 캐시 정책 표
 
-| 메서드                                    | 캐시 동작          | 캐시 네임          | 키                           |
-|-----------------------------------------|------------------|------------------|-----------------------------|
-| `getMinPriceProductsByCategory()`       | 캐시 저장          | `PRODUCT_ALL`     | `'MinPriceProductsByCategory'` |
-| `getMinPriceProductsByBrand()`          | 캐시 저장          | `PRODUCT_ALL`     | `'MinPriceProductsByBrand'` |
-| `getCategoryMinMaxPrice(String categoryName)` | 캐시 저장      | `PRODUCT_ALL`     | `'CategoryMinMaxPrice::' + #categoryName` |
-| `getAllProducts()`                      | 캐시 저장          | `PRODUCT_ALL`     | `'ALL'`                     |
-| `getProductById(Long id)`               | 캐시 저장          | `PRODUCT_ONE`     | `#id`                       |
-| `createProduct(ProductServiceCreateRequest request)` | 캐시 무효화 | `PRODUCT_ALL`     | 모든 엔트리                 |
-| `updateProduct(Long id, ProductServiceUpdateRequest request)` | 캐시 저장 및 무효화 | `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리          |
-| `deleteProductById(Long id)`            | 캐시 무효화       | `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리          |
+| 메서드                                     | 캐시 동작         | 캐시 네임               | 키                           |
+|------------------------------------------|------------------|-----------------------|-----------------------------|
+| `getMinPriceProductsByCategory()`        | 캐시 저장         | `PRODUCT_ALL`         | `'MinPriceProductsByCategory'` |
+| `getMinPriceProductsByBrand()`           | 캐시 저장         | `PRODUCT_ALL`         | `'MinPriceProductsByBrand'` |
+| `getCategoryMinMaxPrice(String categoryName)` | 캐시 저장     | `PRODUCT_ALL`         | `'CategoryMinMaxPrice::' + #categoryName` |
+| `getAllProducts()`                       | 캐시 저장         | `PRODUCT_ALL`         | `'ALL'`                     |
+| `getProductById(Long id)`                | 캐시 저장         | `PRODUCT_ONE`         | `#id`                       |
+| `createProduct(ProductServiceCreateRequest request)` | 캐시 무효화 | `PRODUCT_ALL`         | 모든 엔트리                 |
+| `updateProduct(Long id, ProductServiceUpdateRequest request)` | 캐시 무효화 | `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리          |
+| `deleteProductById(Long id)`             | 캐시 무효화       | `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리          |
 
 ### 캐시 예시 코드
 
@@ -652,7 +653,7 @@ public class ProductService {
     }
 
     @Caching(cacheable = {
-        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'CategoryMinMaxPrice::' + #categoryName'")
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'CategoryMinMaxPrice::' + #categoryName")
     })
     @Transactional(readOnly = true)
     public ProductServiceCategoryMinMaxPriceResponse getCategoryMinMaxPrice(String categoryName) {
@@ -680,10 +681,8 @@ public class ProductService {
     }
 
     @Caching(
-        put = {
-            @CachePut(value = CacheNames.PRODUCT_ONE, key = "#id")
-        },
         evict = {
+            @CacheEvict(value = CacheNames.PRODUCT_ONE, key = "#id"),
             @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
         })
     @Transactional

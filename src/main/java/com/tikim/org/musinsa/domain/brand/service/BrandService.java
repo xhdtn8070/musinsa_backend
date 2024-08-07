@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -66,10 +65,8 @@ public class BrandService {
     }
 
     @Caching(
-        put = {
-            @CachePut(value = CacheNames.BRAND_ONE, key = "#id")
-        },
         evict = {
+            @CacheEvict(value = CacheNames.BRAND_ONE, key = "#id"),
             @CacheEvict(value = CacheNames.BRAND_ALL, allEntries = true),
             @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
             @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
