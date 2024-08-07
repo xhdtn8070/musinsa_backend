@@ -71,6 +71,7 @@ public class BrandService {
         },
         evict = {
             @CacheEvict(value = CacheNames.BRAND_ALL, allEntries = true),
+            @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
             @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
         })
     @Transactional
@@ -84,6 +85,7 @@ public class BrandService {
     @Caching(evict = {
         @CacheEvict(value = CacheNames.BRAND_ONE, key = "#id"),
         @CacheEvict(value = CacheNames.BRAND_ALL, allEntries = true),
+        @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
         @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
     })
     @Transactional

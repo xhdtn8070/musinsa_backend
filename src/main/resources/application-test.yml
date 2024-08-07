@@ -28,7 +28,6 @@ spring:
       path: /h2-console
   cache:
     type: simple
-    cache-names: testCache
 
 # Swagger UI 설정
 springdoc:

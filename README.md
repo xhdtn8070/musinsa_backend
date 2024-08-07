@@ -22,6 +22,7 @@ src
 │   │                   └── global
 │   │                       ├── application
 │   │                       ├── exception
+│   │                       ├── cache
 │   │                       └── swagger  
 │   │                   
 │   └── resources
@@ -62,6 +63,7 @@ src
 - **Flyway**: 데이터베이스 마이그레이션 도구
 - **Swagger UI**: API 문서를 확인할 수 있습니다.
 - **Thymeleaf**: 서버사이드 템플릿 엔진 + ajax
+- **Cache**: 메모리 캐시
 
 
 
@@ -74,7 +76,7 @@ logging:
 
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=MySQL
+    url: jdbc:h2:mem:localdb;MODE=MySQL
     driverClassName: org.h2.Driver
     username: sa
     password: password
@@ -94,6 +96,8 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  cache:
+    type: simple
 
 # Swagger UI 설정
 springdoc:
@@ -287,8 +291,8 @@ Optional<CategoryMinMaxPrice> findMaxPriceByCategory(@Param("categoryId") Long c
 
 프로젝트에서는 엔터티에 대해 CRUD 및 비즈니스 로직을 검증하는 통합 테스트와, DTO 변환 과정을 검증하는 유닛 테스트를 제공합니다. 
 
-- **통합 테스트**: 서비스 함수를 테스트하고 반복적인 테스트 수행이 가능하도록 실행 전 데이터베이스를 초기화하는 작업을 진행합니다.
-- **유닛 테스트**: 컨트롤러에서 사용하는 DTO 변환 과정을 테스트하며, 이때는 데이터베이스가 필요 없기 때문에 사전 작업이 존재하지 않습니다.
+- **통합 테스트**: 서비스 함수를 테스트하고 반복적인 테스트 수행이 가능하도록 실행 전 데이터베이스, 캐시를 초기화하는 작업을 진행합니다.
+- **유닛 테스트**: 컨트롤러에서 사용하는 DTO 변환 과정을 테스트하며, 이때는 데이터베이스, 캐시가 필요 없기 때문에 사전 작업이 존재하지 않습니다.
 - **서비스 함수에 대한 유닛 테스트**는 통합 테스트에서 검증하기 때문에 별도로 작성하지 않았습니다.
 ![프로젝트 기능 시연](img/test.png)
 #### 예시: Product 통합 테스트
@@ -307,10 +311,14 @@ public class ProductServiceIntegrationTest {
 
     @Autowired
     private TestSetupUtil testSetupUtil;
+    
+     @Autowired
+    private GlobalCacheService globalCacheService;
 
     @BeforeEach
     void setUp() {
         testSetupUtil.setUp();
+        globalCacheService.evictAllCaches();
     }
 
     @Test
@@ -321,7 +329,377 @@ public class ProductServiceIntegrationTest {
     }
 }
 ```
+---
+다음은 관계도를 수정하여 `product` 테이블이 가운데에 위치하고 `1:N` 관계를 표기한 정리 내용입니다.
 
+### 데이터베이스 테이블 구조 정리
+
+#### 브랜드 (brand) 테이블
+
+```sql
+CREATE TABLE brand (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+```
+
+- **id**: 브랜드의 고유 식별자 (Primary Key)
+- **name**: 브랜드의 이름 (Unique, Not Null)
+
+#### 카테고리 (category) 테이블
+
+```sql
+CREATE TABLE category (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+```
+
+- **id**: 카테고리의 고유 식별자 (Primary Key)
+- **name**: 카테고리의 이름 (Unique, Not Null)
+
+#### 상품 (product) 테이블
+
+```sql
+CREATE TABLE product (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    brand_id BIGINT NOT NULL,
+    category_id BIGINT NOT NULL,
+    price INT NOT NULL,
+    INDEX idx_category_price (category_id, price),
+    INDEX idx_category_id (category_id),
+    INDEX idx_brand_id (brand_id),
+    INDEX idx_brand_category (brand_id, category_id)
+);
+```
+
+- **id**: 상품의 고유 식별자 (Primary Key)
+- **brand_id**: 브랜드의 고유 식별자 (Foreign Key)
+- **category_id**: 카테고리의 고유 식별자 (Foreign Key)
+- **price**: 상품의 가격
+
+### 인덱스 설명
+
+1. **idx_category_price**
+    - 컬럼: `category_id`, `price`
+    - 용도: 카테고리별 가격 조회 시 성능 향상
+2. **idx_category_id**
+    - 컬럼: `category_id`
+    - 용도: 카테고리별 상품 조회 시 성능 향상
+3. **idx_brand_id**
+    - 컬럼: `brand_id`
+    - 용도: 브랜드별 상품 조회 시 성능 향상
+4. **idx_brand_category**
+    - 컬럼: `brand_id`, `category_id`
+    - 용도: 특정 브랜드와 카테고리에 해당하는 상품 조회 시 성능 향상
+
+### 테이블 관계도
+
+- **brand**와 **product**는 `1:N` 관계
+- **category**와 **product**는 `1:N` 관계
+
+```plaintext
++------------+           1  : N           +------------+
+|  brand     |----------------------------|  product   |
++------------+                            +------------+
+| id (PK)    |                            | id (PK)    |
+| name       |                            | brand_id   |
++------------+                            | category_id|
+                                          | price      |
+                                          +------------+
+                                                |
+                                                N
+                                                :
+                                                1
+                                          +------------+
+                                          | category   |
+                                          +------------+
+                                          | id (PK)    |
+                                          | name       |
+                                          +------------+
+```
+
+# 캐시 정책
+
+## 개요
+
+이 문서는 프로젝트에서 사용되는 캐시 정책과 관련 설정을 설명합니다. Spring Boot의 캐시 기능을 사용하여 데이터 접근 성능을 향상시키고 응답 속도를 개선하였습니다. 로컬 및 테스트 환경에서는 메모리 캐시를 사용할 수 있도록 설정하였습니다.
+
+## 캐시 설정
+
+### 캐시 설정 파일
+
+`LocalCacheConfig` 클래스는 로컬 및 테스트 환경에서 ConcurrentMapCacheManager를 사용하여 메모리 캐시를 설정합니다.
+
+```java
+package com.tikim.org.musinsa.global.cache;
+
+@Configuration
+@Profile({"local", "test"})
+@EnableCaching
+public class LocalCacheConfig {
+
+    @Bean
+    public ConcurrentMapCacheManager cacheManager() {
+        return new ConcurrentMapCacheManager(CacheNames.getCacheNames());
+    }
+}
+```
+
+### 캐시 네임 설정
+
+`CacheNames` 클래스는 프로젝트에서 사용할 캐시 이름을 정의합니다.
+
+```java
+package com.tikim.org.musinsa.global.cache;
+
+public class CacheNames {
+    public static final String BRAND_ONE = "BRAND::ONE";
+    public static final String BRAND_ALL = "BRAND::ALL";
+    public static final String CATEGORY_ONE = "CATEGORY::ONE";
+    public static final String CATEGORY_ALL = "CATEGORY::ALL";
+    public static final String PRODUCT_ONE = "PRODUCT::ONE";
+    public static final String PRODUCT_ALL = "PRODUCT::ALL";
+
+    public static String[] getCacheNames() {
+        return new String[] {BRAND_ONE, BRAND_ALL, CATEGORY_ONE, CATEGORY_ALL, PRODUCT_ONE, PRODUCT_ALL};
+    }
+}
+```
+
+## 캐시 정책
+
+### BrandService 캐시 정책
+
+`BrandService` 클래스에서는 브랜드 정보를 캐시하고, 브랜드 정보 변경 시 관련 캐시를 무효화하는 정책을 적용하였습니다.
+
+| 메서드                             | 캐시 동작                                       | 캐시 네임              | 키            |
+|----------------------------------|-----------------------------------------------|----------------------|--------------|
+| `getAllBrands()`                 | 캐시 저장                                       | `BRAND_ALL`           | `'ALL'`      |
+| `getBrandById(Long id)`          | 캐시 저장                                       | `BRAND_ONE`           | `#id`        |
+| `createBrand(BrandServiceCreateRequest request)` | 캐시 무효화 | `BRAND_ALL`, `PRODUCT_ALL` | 모든 엔트리 |
+| `updateBrand(Long id, BrandServiceUpdateRequest request)` | 캐시 저장 및 무효화 | `BRAND_ONE`, `BRAND_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
+| `deleteBrandById(Long id)`       | 캐시 무효화                                     | `BRAND_ONE`, `BRAND_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
+
+```java
+@Service
+@RequiredArgsConstructor
+public class BrandService {
+
+    private final BrandRepository brandRepository;
+    private final ProductRepository productRepository;
+
+    @Caching(
+        cacheable = {
+            @Cacheable(value = CacheNames.BRAND_ALL, key = "'ALL'")
+        })
+    @Transactional(readOnly = true)
+    public List<BrandServiceReadResponse> getAllBrands() {
+    }
+
+    @Caching(
+        cacheable = {
+            @Cacheable(value = CacheNames.BRAND_ONE, key = "#id")
+        })
+    @Transactional(readOnly = true)
+    public BrandServiceReadResponse getBrandById(Long id) {
+    }
+
+    @Caching(
+        evict = {
+            @CacheEvict(value = CacheNames.BRAND_ALL, allEntries = true),
+            @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+        })
+    @Transactional
+    public BrandServiceCreateResponse createBrand(BrandServiceCreateRequest request) {
+    }
+
+    @Caching(
+        put = {
+            @CachePut(value = CacheNames.BRAND_ONE, key = "#id")
+        },
+        evict = {
+            @CacheEvict(value = CacheNames.BRAND_ALL, allEntries = true),
+            @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
+            @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+        })
+    @Transactional
+    public BrandServiceUpdateResponse updateBrand(Long id, BrandServiceUpdateRequest request) {
+    }
+
+    @Caching(evict = {
+        @CacheEvict(value = CacheNames.BRAND_ONE, key = "#id"),
+        @CacheEvict(value = CacheNames.BRAND_ALL, allEntries = true),
+        @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
+        @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+    })
+    @Transactional
+    public void deleteBrandById(Long id) {
+    }
+}
+```
+### CategoryService 캐시 정책
+
+`CategoryService` 클래스에서는 카테고리 정보를 캐시하고, 카테고리 정보 변경 시 관련 캐시를 무효화하는 정책을 적용하였습니다.
+
+| 메서드                             | 캐시 동작                                       | 캐시 네임              | 키            |
+|----------------------------------|-----------------------------------------------|----------------------|--------------|
+| `getAllCategories()`              | 캐시 저장                                       | `CATEGORY_ALL`        | `'ALL'`      |
+| `getCategoryById(Long id)`        | 캐시 저장                                       | `CATEGORY_ONE`        | `#id`        |
+| `createCategory(CategoryServiceCreateRequest request)` | 캐시 무효화 | `CATEGORY_ALL`, `PRODUCT_ALL` | 모든 엔트리 |
+| `updateCategory(Long id, CategoryServiceUpdateRequest request)` | 캐시 저장 및 무효화 | `CATEGORY_ONE`, `CATEGORY_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
+| `deleteCategoryById(Long id)`     | 캐시 무효화                                     | `CATEGORY_ONE`, `CATEGORY_ALL`, `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리 |
+
+```java
+@Service
+@RequiredArgsConstructor
+public class CategoryService {
+
+    private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
+
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.CATEGORY_ALL, key = "'ALL'")
+    })
+    @Transactional(readOnly = true)
+    public List<CategoryServiceReadResponse> getAllCategories() {
+    }
+
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.CATEGORY_ONE, key = "#id")
+    })
+    @Transactional(readOnly = true)
+    public CategoryServiceReadResponse getCategoryById(Long id) {
+    }
+
+    @Caching(evict = {
+        @CacheEvict(value = CacheNames.CATEGORY_ALL, allEntries = true),
+        @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+    })
+    @Transactional
+    public CategoryServiceCreateResponse createCategory(CategoryServiceCreateRequest request) {
+    }
+
+    @Caching(
+        put = {
+            @CachePut(value = CacheNames.CATEGORY_ONE, key = "#id")
+        },
+        evict = {
+            @CacheEvict(value = CacheNames.CATEGORY_ALL, allEntries = true),
+            @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
+            @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+        })
+    @Transactional
+    public CategoryServiceUpdateResponse updateCategory(Long id, CategoryServiceUpdateRequest request) {
+    }
+
+    @Caching(evict = {
+        @CacheEvict(value = CacheNames.CATEGORY_ONE, key = "#id"),
+        @CacheEvict(value = CacheNames.CATEGORY_ALL, allEntries = true),
+        @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
+        @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+    })
+    @Transactional
+    public void deleteCategoryById(Long id) {
+    }
+}
+```
+
+위의 표와 예시 코드는 `CategoryService`의 캐시 정책을 설명합니다. 각 메서드의 캐시 동작과 캐시 네임 및 키를 표로 정리하여 가독성을 높였습니다. 이 표는 `CategoryService` 클래스에서 각 메서드의 캐시 정책을 명확히 이해하는 데 도움이 됩니다.
+다음은 `ProductService`에 대한 캐시 정책을 설명하는 문서입니다. 이 문서에는 간단한 예시 코드와 함께 각 메서드의 캐시 정책을 설명합니다.
+
+
+### ProductService 캐시 정책 문서
+
+`ProductService` 클래스에서는 프로덕트 정보를 캐시하고, 프로덕트 정보 변경 시 관련 캐시를 무효화하는 정책을 적용하였습니다.
+
+### 캐시 정책 표
+
+| 메서드                                    | 캐시 동작          | 캐시 네임          | 키                           |
+|-----------------------------------------|------------------|------------------|-----------------------------|
+| `getMinPriceProductsByCategory()`       | 캐시 저장          | `PRODUCT_ALL`     | `'MinPriceProductsByCategory'` |
+| `getMinPriceProductsByBrand()`          | 캐시 저장          | `PRODUCT_ALL`     | `'MinPriceProductsByBrand'` |
+| `getCategoryMinMaxPrice(String categoryName)` | 캐시 저장      | `PRODUCT_ALL`     | `'CategoryMinMaxPrice::' + #categoryName` |
+| `getAllProducts()`                      | 캐시 저장          | `PRODUCT_ALL`     | `'ALL'`                     |
+| `getProductById(Long id)`               | 캐시 저장          | `PRODUCT_ONE`     | `#id`                       |
+| `createProduct(ProductServiceCreateRequest request)` | 캐시 무효화 | `PRODUCT_ALL`     | 모든 엔트리                 |
+| `updateProduct(Long id, ProductServiceUpdateRequest request)` | 캐시 저장 및 무효화 | `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리          |
+| `deleteProductById(Long id)`            | 캐시 무효화       | `PRODUCT_ONE`, `PRODUCT_ALL` | `#id`, 모든 엔트리          |
+
+### 캐시 예시 코드
+
+```java
+@Service
+@RequiredArgsConstructor
+public class ProductService {
+
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final BrandRepository brandRepository;
+
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'MinPriceProductsByCategory'")
+    })
+    @Transactional(readOnly = true)
+    public List<ProductServiceMinPriceByCategoryResponse> getMinPriceProductsByCategory() {
+    }
+
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'MinPriceProductsByBrand'")
+    })
+    @Transactional(readOnly = true)
+    public ProductServiceMinPriceByBrandResponse getMinPriceProductsByBrand() {
+    }
+
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'CategoryMinMaxPrice::' + #categoryName'")
+    })
+    @Transactional(readOnly = true)
+    public ProductServiceCategoryMinMaxPriceResponse getCategoryMinMaxPrice(String categoryName) {
+    }
+
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ALL, key = "'ALL'")
+    })
+    @Transactional(readOnly = true)
+    public List<ProductServiceReadResponse> getAllProducts() {
+    }
+
+    @Caching(cacheable = {
+        @Cacheable(value = CacheNames.PRODUCT_ONE, key = "#id")
+    })
+    @Transactional(readOnly = true)
+    public ProductServiceReadResponse getProductById(Long id) {
+    }
+
+    @Caching(evict = {
+        @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+    })
+    @Transactional
+    public ProductServiceCreateResponse createProduct(ProductServiceCreateRequest request) {
+    }
+
+    @Caching(
+        put = {
+            @CachePut(value = CacheNames.PRODUCT_ONE, key = "#id")
+        },
+        evict = {
+            @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+        })
+    @Transactional
+    public ProductServiceUpdateResponse updateProduct(Long id, ProductServiceUpdateRequest request) {
+    }
+
+    @Caching(evict = {
+        @CacheEvict(value = CacheNames.PRODUCT_ONE, key = "#id"),
+        @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
+    })
+    @Transactional
+    public void deleteProductById(Long id) {
+    }
+}
+
+```
 ---
 
 이 README.md 파일은 프로젝트의 개요, 패키지 구조, 개발 환경 설정, 구현 내용, 실행 방법 및 테스트에 대한 정보를 제공합니다.

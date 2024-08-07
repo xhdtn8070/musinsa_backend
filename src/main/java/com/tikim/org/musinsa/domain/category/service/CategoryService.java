@@ -68,6 +68,7 @@ public class CategoryService {
         },
         evict = {
             @CacheEvict(value = CacheNames.CATEGORY_ALL, allEntries = true),
+            @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
             @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
         })
     @Transactional
@@ -81,6 +82,7 @@ public class CategoryService {
     @Caching(evict = {
         @CacheEvict(value = CacheNames.CATEGORY_ONE, key = "#id"),
         @CacheEvict(value = CacheNames.CATEGORY_ALL, allEntries = true),
+        @CacheEvict(value = CacheNames.PRODUCT_ONE, allEntries = true),
         @CacheEvict(value = CacheNames.PRODUCT_ALL, allEntries = true)
     })
     @Transactional
